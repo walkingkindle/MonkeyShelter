@@ -1,5 +1,6 @@
 ﻿using CSharpFunctionalExtensions;
 using Domain.Entities;
+using Domain.Models;
 using Infrastructure.Contracts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -22,19 +23,8 @@ namespace Infrastructure.Implementations
         {
             _monkeyShelterDbContext.Monkeys.Add(monkey);
 
-            try
-            {
-                await _monkeyShelterDbContext.SaveChangesAsync();
-
-                return monkey.Id;
-            }
-            catch(Exception ex)
-            {
-
-                _logger.LogError($"Database save failed,{ex.Message}");
-
-                throw;
-            }
+            await CarefulSaveChanges();
+            return monkey.Id;
 
         }
 
@@ -51,6 +41,26 @@ namespace Infrastructure.Implementations
 
         }
 
+        public async Task<List<MonkeyReportResponse>> GetMonkeysByDate(DateTime dateFrom, DateTime dateTo)
+        {
+            return await _monkeyShelterDbContext.Admissions.Include(d => d.Monkey)
+                .Where(p => p.MonkeyAdmittanceDate >= dateFrom && p.MonkeyAdmittanceDate <= dateTo)
+                .Select(o => new MonkeyReportResponse
+                {
+                    MonkeyName = o.Monkey.Name,
+                    Species = o.Monkey.Species,
+                    MonkeyId = o.MonkeyId
+                })
+                .ToListAsync();
+        }
+
+        public async Task<List<MonkeyReportResponse>> GetMonkeysBySpecies(MonkeySpecies species)
+        {
+            return await _monkeyShelterDbContext.Monkeys.Where(p => p.Species == species)
+                .Select(p => new MonkeyReportResponse { MonkeyName = p.Name, Species = p.Species })
+                .ToListAsync();
+        }
+
         public async Task RemoveMonkeyFromShelter(Monkey monkey)
         {
             Departure departure = new Departure(monkey.Id);
@@ -59,21 +69,31 @@ namespace Infrastructure.Implementations
 
             _monkeyShelterDbContext.Monkeys.Remove(monkey);
 
+            await CarefulSaveChanges();
+
+        }
+
+        public async Task UpdateMonkey(MonkeyWeightRequest monkey)
+        {
+            var monkeyFromDb = await _monkeyShelterDbContext.Monkeys.FirstOrDefaultAsync(p => p.Id == monkey.MonkeyId);
+
+            monkeyFromDb.Weight = monkey.NewMonkeyWeight;
+
+            await CarefulSaveChanges();
+        }
+
+        private async Task CarefulSaveChanges()
+        {
             try
             {
                 await _monkeyShelterDbContext.SaveChangesAsync();
             }
             catch(Exception ex)
             {
-                _logger.LogError($"An exception occurred while saving the changes to departure of MonkeyId :{monkey.Id}, {ex.Message} ");
+                _logger.LogError($"An exception occurred while saving the changes , {ex.Message} ");
                 throw;
             }
 
-        }
-
-        public Task UpdateMonkey(Monkey monkey)
-        {
-            throw new NotImplementedException();
         }
     }
 }

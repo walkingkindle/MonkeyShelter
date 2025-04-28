@@ -12,6 +12,8 @@ namespace Application
 
             services.AddTransient<IMonkeyService, MonkeyService>();
 
+            services.AddTransient<ICheckupService, CheckupService>();
+
             return services;
         }
     }

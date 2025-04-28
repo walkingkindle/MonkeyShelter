@@ -6,7 +6,7 @@ namespace Application.Contracts{
     {
         public Task<Result> AddMonkey(Maybe<MonkeyEntryRequest> request);
 
-        public Result DepartMonkey();
+        public Task<Result> DepartMonkey(Maybe<MonkeyDepartureRequest> request);
 
         public Result AdjustMonkeyWeight();
 

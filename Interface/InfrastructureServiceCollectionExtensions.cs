@@ -16,6 +16,8 @@ namespace Infrastructure
 
             services.AddTransient<IMonkeyRepository, MonkeyRepository>();
 
+            services.AddTransient<IDeparturesRepository, DeparturesRepository>();
+
             services.AddScoped<InitialDbDataSeed>();
 
 

@@ -13,6 +13,8 @@ namespace Infrastructure
 
         public DbSet<Admission> Admissions { get; set; }
 
+        public DbSet<Departure> Departures { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);

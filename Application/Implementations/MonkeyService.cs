@@ -3,6 +3,7 @@ using CSharpFunctionalExtensions;
 using Domain.Entities;
 using Domain.Models;
 using Infrastructure.Contracts;
+using Application.Extensions;
 
 namespace Application.Implementations
 {
@@ -19,24 +20,11 @@ namespace Application.Implementations
 
         public async Task<Result> AddMonkey(Maybe<MonkeyEntryRequest> request)
         {
-            Result admissionResult = _admissionTracker.CanMonkeyBeAdmitted();
-
-            Result<Monkey> monkeyResult = Monkey.CreateMonkey(request);
-
-            var combinedResult = Result.Combine(admissionResult, monkeyResult);
-
-            if (combinedResult.IsFailure)
-            {
-                return Result.Failure(combinedResult.Error);
-            }
-            else
-            {
-                await _monkeyRepository.AddMonkeyToShelter(monkeyResult.Value);
-
-                await _admissionTracker.IncrementAdmissions();
-
-                return Result.Success();
-            }
+            return request.ToResult("Request for entry cannot be null")
+            .Ensure(result => MonkeyCanBeAdmitted(), "Shelter is currently full")
+            .Map(monkey => Monkey.CreateMonkey(request)
+            .OnSuccess(async monkey => await _monkeyRepository.AddMonkeyToShelter(monkey))
+            .OnSuccess(async monkey => await _admissionTracker.IncrementAdmissions(monkey.Id)));
         }
  
         public Result AdjustMonkeyWeight()
@@ -44,9 +32,24 @@ namespace Application.Implementations
             throw new NotImplementedException();
         }
 
-        public Result DepartMonkey()
+        public Task<Result> DepartMonkey(Maybe<MonkeyDepartureRequest> request)
         {
-            throw new NotImplementedException();
+            return request.ToResult("monkey Id must not be null")
+           .Ensure(result => _admissionTracker.IsSufficientMonkeyDeparture(), "Cannot be departed at this time")
+           .Bind(async result => await _monkeyRepository.GetMonkeyById(request.Value.MonkeyId)
+           .Ensure(result => MonkeyCanBeDeparted(result.Species), "We could not depart the selected monkey at this time.")
+           .OnSuccessTry(async result => await _monkeyRepository.RemoveMonkeyFromShelter(result)));
+        }
+
+
+        private bool MonkeyCanBeAdmitted()
+        {
+           return _admissionTracker.CanMonkeyBeAdmitted();
+        }
+
+        private bool MonkeyCanBeDeparted(MonkeySpecies species)
+        {
+           return _admissionTracker.CanMonkeyDepart(species);
         }
     }
 }

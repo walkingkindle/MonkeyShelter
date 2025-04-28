@@ -11,8 +11,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(MonkeyShelterDbContext))]
-    [Migration("20250427175704_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20250428113455_InitialMigration")]
+    partial class InitialMigration
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -29,12 +29,36 @@ namespace Infrastructure.Migrations
                     b.Property<DateTime>("MonkeyAdmittanceDate")
                         .HasColumnType("TEXT");
 
+                    b.Property<DateTime>("MonkeyCheckupTime")
+                        .HasColumnType("TEXT");
+
                     b.Property<int>("MonkeyId")
                         .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
 
+                    b.HasIndex("MonkeyId");
+
                     b.ToTable("Admissions");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Departure", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("DepartureDate")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("MonkeyId")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MonkeyId");
+
+                    b.ToTable("Departures");
                 });
 
             modelBuilder.Entity("Domain.Entities.Monkey", b =>
@@ -42,9 +66,6 @@ namespace Infrastructure.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
-
-                    b.Property<DateTime>("CheckupTime")
-                        .HasColumnType("TEXT");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -59,6 +80,28 @@ namespace Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Monkeys");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Admission", b =>
+                {
+                    b.HasOne("Domain.Entities.Monkey", "Monkey")
+                        .WithMany()
+                        .HasForeignKey("MonkeyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Monkey");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Departure", b =>
+                {
+                    b.HasOne("Domain.Entities.Monkey", "Monkey")
+                        .WithMany()
+                        .HasForeignKey("MonkeyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Monkey");
                 });
 #pragma warning restore 612, 618
         }

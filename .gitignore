@@ -361,3 +361,6 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+/Presentation/monkeys.db
+/Presentation/monkeys.db-shm
+/Presentation/monkeys.db-wal

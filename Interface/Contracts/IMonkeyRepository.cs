@@ -1,4 +1,5 @@
-﻿using Domain.Entities;
+﻿using CSharpFunctionalExtensions;
+using Domain.Entities;
 
 namespace Infrastructure.Contracts
 {
@@ -10,6 +11,7 @@ namespace Infrastructure.Contracts
 
         public Task UpdateMonkey(Monkey monkey);
 
+        public Task<Result<Monkey>> GetMonkeyById(int id);
 
 
     }

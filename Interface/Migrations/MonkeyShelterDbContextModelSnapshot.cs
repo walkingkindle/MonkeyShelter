@@ -26,12 +26,36 @@ namespace Infrastructure.Migrations
                     b.Property<DateTime>("MonkeyAdmittanceDate")
                         .HasColumnType("TEXT");
 
+                    b.Property<DateTime>("MonkeyCheckupTime")
+                        .HasColumnType("TEXT");
+
                     b.Property<int>("MonkeyId")
                         .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
 
+                    b.HasIndex("MonkeyId");
+
                     b.ToTable("Admissions");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Departure", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("DepartureDate")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("MonkeyId")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("MonkeyId");
+
+                    b.ToTable("Departures");
                 });
 
             modelBuilder.Entity("Domain.Entities.Monkey", b =>
@@ -39,9 +63,6 @@ namespace Infrastructure.Migrations
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
-
-                    b.Property<DateTime>("CheckupTime")
-                        .HasColumnType("TEXT");
 
                     b.Property<string>("Name")
                         .IsRequired()
@@ -56,6 +77,28 @@ namespace Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Monkeys");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Admission", b =>
+                {
+                    b.HasOne("Domain.Entities.Monkey", "Monkey")
+                        .WithMany()
+                        .HasForeignKey("MonkeyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Monkey");
+                });
+
+            modelBuilder.Entity("Domain.Entities.Departure", b =>
+                {
+                    b.HasOne("Domain.Entities.Monkey", "Monkey")
+                        .WithMany()
+                        .HasForeignKey("MonkeyId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Monkey");
                 });
 #pragma warning restore 612, 618
         }

@@ -13,8 +13,6 @@ namespace Domain.Entities
 
         public double Weight { get; set; }
 
-        public DateTime CheckupTime { get; set; }
-
         public static Result<Monkey> CreateMonkey(Maybe<MonkeyEntryRequest> request)
         {
             return request.ToResult("Monkey cannot be null")
@@ -31,14 +29,9 @@ namespace Domain.Entities
             Name = name;
 
             Weight = weight;
-
-            CheckupTime = CalculateCheckupTime();
         }
 
-        private DateTime CalculateCheckupTime()
-        {
-            return DateTime.Today.AddMonths(6);
-        }
+
 
     }
 }

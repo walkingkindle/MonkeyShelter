@@ -25,6 +25,16 @@ namespace Presentation.Controllers
             return result.ToActionResult();
         }
 
+        [HttpDelete]
+        public async Task<IActionResult> DepartMonkeyFromShelter(MonkeyDepartureRequest request)
+        {
+            var result = await _monkeyService.DepartMonkey(request);
+
+            HttpContext.Items["Result"] = result;
+
+            return result.ToActionResult();
+        }
+
         
     }
 }

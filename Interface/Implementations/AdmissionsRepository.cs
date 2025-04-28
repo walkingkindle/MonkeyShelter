@@ -19,9 +19,15 @@ namespace Infrastructure.Implementations
             await _monkeyShelterDbContext.SaveChangesAsync();
         }
 
+        public int GetMonkeysAmountBySpecies(MonkeySpecies species)
+        {
+            return _monkeyShelterDbContext.Monkeys.Where(p => p.Species == species).Count();
+        }
+
         public int GetTodayAdmittanceAmount()
         {
-            return _monkeyShelterDbContext.Admissions.Select(p => p.MonkeyAdmittanceDate == DateTime.Today).Count();
+            return _monkeyShelterDbContext.Admissions.Where(p => p.MonkeyAdmittanceDate == DateTime.Today).Count();
         }
-    }
+
+     }
 }

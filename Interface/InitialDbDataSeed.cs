@@ -1,4 +1,5 @@
-﻿using Domain.Entities;
+﻿using CSharpFunctionalExtensions;
+using Domain.Entities;
 using Domain.Models;
 
 namespace Infrastructure
@@ -22,22 +23,53 @@ namespace Infrastructure
         _random = new Random();
     }
 
-    public void Seed()
+public void Seed()
+{
+    if (_dbContext.Monkeys.Any())
     {
-        if (_dbContext.Monkeys.Any())
-        {
-            return;
-        }
-        var monkeys = new List<Monkey>();
+        return;
+    }
 
-        for (int i = 0; i < 90; i++)
+    var monkeys = new List<Monkey>();
+
+    for (int i = 1; i <= 90; i++)
+    {
+        var monkeyResult = Monkey.CreateMonkey(new MonkeyEntryRequest 
+        { 
+            Name = GetRandomName(), 
+            Species = GetRandomSpecies(), 
+            Weight = GetRandomWeight() 
+        });
+
+        if (monkeyResult.IsFailure)
         {
-            var monkey = Monkey.CreateMonkey(new MonkeyEntryRequest { Name = GetRandomName(), Species = GetRandomSpecies(), Weight = GetRandomWeight() }).Value;
-            monkeys.Add(monkey);
+            throw new ArgumentException($"Error creating monkey: {monkeyResult.Error}");
         }
 
-        _dbContext.Monkeys.AddRange(monkeys);
-        _dbContext.SaveChanges();
+        monkeys.Add(monkeyResult.Value);
+    }
+
+    _dbContext.Monkeys.AddRange(monkeys);
+    _dbContext.SaveChanges();
+    var admissions = new List<Admission>();
+    foreach (var monkey in monkeys)
+    {
+        var admissionResult = Admission.CreateAdmission(new AdmissionRequest 
+        { 
+            MonkeyId = monkey.Id, 
+            AdmittanceDate = DateTime.Today.AddDays(-monkey.Id)
+        });
+
+        if (admissionResult.IsFailure)
+        {
+            throw new ArgumentException($"Error creating admission: {admissionResult.Error}");
+        }
+
+        admissions.Add(admissionResult.Value);
+    }
+
+    _dbContext.Admissions.AddRange(admissions);
+    _dbContext.SaveChanges();
     }
 
     private MonkeySpecies GetRandomSpecies()
@@ -52,7 +84,6 @@ namespace Infrastructure
 
     private double GetRandomWeight()
     {
-        // Random weight between 5 kg and 50 kg
         return _random.NextDouble() * (50 - 5) + 5;
     }
 }

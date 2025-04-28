@@ -7,5 +7,6 @@ namespace Infrastructure.Contracts
         public int GetTodayAdmittanceAmount();
 
         public Task AddAdmittance(Admission admission);
+        int GetMonkeysAmountBySpecies(MonkeySpecies species);
     }
 }

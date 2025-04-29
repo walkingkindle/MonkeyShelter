@@ -1,0 +1,9 @@
+  <form [formGroup]="removeMonkeyForm" (ngSubmit)="onSubmit()">
+    <div class="mb-3">
+      <label class="form-label">MonkeyId</label>
+      <input type="number" class="form-control" formControlName="id">
+    </div>
+       <button type="submit" class="btn btn-primary" [disabled]="removeMonkeyForm.invalid">
+      Submit
+    </button>
+</form>

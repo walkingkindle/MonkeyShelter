@@ -9,8 +9,8 @@ import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http'
 @Component({
   selector: 'app-monkey-form',
   imports: [ReactiveFormsModule,CommonModule],
-  templateUrl: './monkey-form.component.html',
-  styleUrl: './monkey-form.component.css',
+  templateUrl: './add-monkey.component.html',
+  styleUrl: './add-monkey.component.css',
 })
 export class MonkeyFormComponent {
   monkeyForm: FormGroup;

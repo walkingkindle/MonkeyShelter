@@ -10,7 +10,7 @@ startup.ConfigureServices(builder.Services);
 
 var app = builder.Build();
 
-app.UseMiddleware<ResultMiddleware>();
+app.UseMiddleware<RequestLoggingMiddleware>();
 
 
 using (var scope = app.Services.CreateScope())

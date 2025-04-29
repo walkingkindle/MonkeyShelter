@@ -4,6 +4,7 @@ using Domain.Entities;
 using Domain.Models;
 using Infrastructure.Contracts;
 using Application.Extensions;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace Application.Implementations
 {
@@ -12,12 +13,14 @@ namespace Application.Implementations
         private readonly IAdmissionTracker _admissionTracker;
         private readonly IMonkeyRepository _monkeyRepository;
         private readonly IDepartureService _departureService;
+        private readonly IMemoryCache _memoryCache;
 
-        public MonkeyService(IAdmissionTracker admissionTracker, IMonkeyRepository monkeyRepository, IDepartureService departureService)
+        public MonkeyService(IAdmissionTracker admissionTracker, IMonkeyRepository monkeyRepository, IDepartureService departureService, IMemoryCache memoryCache)
         {
             _admissionTracker = admissionTracker;
             _monkeyRepository = monkeyRepository;
             _departureService = departureService;
+            _memoryCache = memoryCache;
         }
         public async Task<Result> AddMonkey(Maybe<MonkeyEntryRequest> request)
         {
@@ -42,6 +45,9 @@ namespace Application.Implementations
             {
                 return Result.Failure(monkeyIdResult.Error);
             }
+
+            InvalidateCacheForSpecies(createResult.Value.Species);
+
             var admittanceResult = await _admissionTracker.Admit(monkeyIdResult.AsMaybe());
 
             if (admittanceResult.IsFailure)
@@ -78,6 +84,8 @@ namespace Application.Implementations
 
             await _monkeyRepository.RemoveMonkeyFromShelter(monkeyResult.Value);
 
+            InvalidateCacheForSpecies(monkeyResult.Value.Species);
+
             var departureResult = await _departureService.Depart(request.Value.MonkeyId);
 
             if (departureResult.IsFailure)
@@ -89,14 +97,44 @@ namespace Application.Implementations
            
         }
 
-        public async Task<List<MonkeyReportResponse>> GetMonkeyBySpecies(Maybe<MonkeySpecies> species)
+        public async Task<Result<List<MonkeyReportResponse>>> GetMonkeyBySpecies(Maybe<MonkeySpecies> species)
         {
-            return await _monkeyRepository.GetMonkeysBySpecies(species.Value);
+            var validationResult = species.ToResult("Species cannot be null")
+                .Ensure(species => Enum.IsDefined(typeof(MonkeySpecies), species), "Invalid species value");
+
+            if (validationResult.IsFailure)
+            {
+                return Result.Failure<List<MonkeyReportResponse>>(validationResult.Error);
+            }
+
+            var cacheKey = $"MonkeySpecies_{species.Value}";
+            if (_memoryCache.TryGetValue(cacheKey, out List<MonkeyReportResponse> cachedResult))
+            {
+                return Result.Success(cachedResult);
+            }
+
+            var result = await _monkeyRepository.GetMonkeysBySpecies(species.Value);
+
+            if (result.Any())
+            {
+                _memoryCache.Set(cacheKey, result, TimeSpan.FromMinutes(10)); // Cache expires after 10 minutes (adjust as needed)
+            }
+
+            return Result.Success(result);
         }
 
-        public async Task<List<MonkeyReportResponse>> GetMonkeysByDate(DateTime dateFrom, DateTime dateTo)
+        public async Task<Result<List<MonkeyReportResponse>>> GetMonkeysByDate(MonkeyDateRequest dateTimes)
         {
-            return await _monkeyRepository.GetMonkeysByDate(dateFrom, dateTo);
+            var validationResult = dateTimes.ToResult("DateTimesCannot be null")
+            .Ensure(result => !(result.DateFrom.Value > result.DateTo.Value), "Date from must not be higher than date to");
+
+            if (validationResult.IsFailure)
+            {
+                return Result.Failure<List<MonkeyReportResponse>>("Date times provided are invalid");
+            }
+            var result = await _monkeyRepository.GetMonkeysByDate(dateTimes.DateFrom.Value, dateTimes.DateTo.Value);
+
+            return Result.Success(result);
         }
 
         public async Task<Result> UpdateMonkeyWeight(Maybe<MonkeyWeightRequest> request)
@@ -114,5 +152,13 @@ namespace Application.Implementations
 
             return Result.Success();
         }
+
+        private void InvalidateCacheForSpecies(MonkeySpecies species)
+        {
+            var cacheKey = $"MonkeySpecies_{species}";
+            _memoryCache.Remove(cacheKey);
+        }
+
+
     }
 }

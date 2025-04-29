@@ -8,6 +8,9 @@ namespace Application
     {
         public static IServiceCollection AddApplicationServices(this IServiceCollection services)
         {
+
+            services.AddMemoryCache();
+
             services.AddTransient<IAdmissionTracker, AdmissionsTracker>();
 
             services.AddTransient<IMonkeyService, MonkeyService>();

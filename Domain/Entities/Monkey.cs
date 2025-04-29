@@ -13,6 +13,8 @@ namespace Domain.Entities
 
         public double Weight { get; set; }
 
+        public DateTime? LastUpdateTime { get; set; }
+
         public static Result<Monkey> CreateMonkey(Maybe<MonkeyEntryRequest> request)
         {
             return request.ToResult("Monkey cannot be null")
@@ -29,6 +31,8 @@ namespace Domain.Entities
             Name = name;
 
             Weight = weight;
+
+            LastUpdateTime = null;
         }
 
 

@@ -1,4 +1,5 @@
-﻿using CSharpFunctionalExtensions;
+﻿using Application.Implementations;
+using CSharpFunctionalExtensions;
 using Domain.Entities;
 using Domain.Models;
 
@@ -10,7 +11,7 @@ namespace Application.Contracts{
         public Task<Result> DepartMonkey(Maybe<MonkeyDepartureRequest> request);
 
         Task<Result> UpdateMonkeyWeight(Maybe<MonkeyWeightRequest> request);
-        Task<List<MonkeyReportResponse>> GetMonkeyBySpecies(Maybe<MonkeySpecies> species);
-        Task<List<MonkeyReportResponse>> GetMonkeysByDate(DateTime dateFrom, DateTime dateTo);
+        Task<Result<List<MonkeyReportResponse>>> GetMonkeyBySpecies(Maybe<MonkeySpecies> species);
+        Task<Result<List<MonkeyReportResponse>>> GetMonkeysByDate(MonkeyDateRequest dateTimes);
     }
 }

@@ -5,16 +5,6 @@ using System.Diagnostics;
 
 namespace Infrastructure.Middleware
 {
-public class ResultMiddleware
-{
-    private readonly RequestDelegate _next;
-    private readonly ILogger<ResultMiddleware> _logger;
-
-    public ResultMiddleware(RequestDelegate next, ILogger<ResultMiddleware> logger)
-    {
-        _next = next;
-        _logger = logger;
-    }
 public class RequestLoggingMiddleware
 {
     private readonly RequestDelegate _next;
@@ -30,10 +20,9 @@ public class RequestLoggingMiddleware
     {
         var stopwatch = Stopwatch.StartNew();
 
-        // Log request information
         _logger.LogInformation("Incoming request: {method} {path}", httpContext.Request.Method, httpContext.Request.Path);
 
-        await _next(httpContext); // Call next middleware
+        await _next(httpContext); 
 
         stopwatch.Stop();
 
@@ -57,6 +46,5 @@ public class RequestLoggingMiddleware
         // Log response status
         _logger.LogInformation("Response Status: {statusCode}", httpContext.Response.StatusCode);
     }
-}
 }
 }

@@ -1,4 +1,5 @@
 ﻿using Application.Contracts;
+using Application.Implementations;
 using Domain.Entities;
 using Domain.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -18,15 +19,29 @@ namespace Presentation.Controllers
         }
 
         [HttpGet("/reports/monkeys-per-species")]
-        public async Task<ActionResult<List<MonkeyInfo>>> GetMonkeyBySpecies(MonkeySpecies species)
+        public async Task<ActionResult<List<MonkeyReportResponse>>> GetMonkeyBySpecies(MonkeySpecies species)
         {
-            return Ok(await _monkeyService.GetMonkeyBySpecies(species));
+            var result = await _monkeyService.GetMonkeyBySpecies(species);
+
+            if (result.IsSuccess)
+            {
+                return Ok(result.Value);
+            }
+
+            return BadRequest(result.Error);
         }
 
         [HttpGet("/reports/arrivals-per-species")]
         public async Task<ActionResult<List<MonkeyInfo>>> GetMonkeysByArrivalDate(DateTime dateFrom, DateTime dateTo)
         {
-            return Ok(await _monkeyService.GetMonkeysByDate(dateFrom, dateTo));
+            var result = await _monkeyService.GetMonkeysByDate(new MonkeyDateRequest { DateFrom = dateFrom, DateTo = dateTo });
+
+            if (result.IsSuccess)
+            {
+                return Ok(result.Value);
+            }
+
+            return BadRequest(result.Error);
         }
     }
 }

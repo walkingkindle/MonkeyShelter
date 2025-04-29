@@ -82,6 +82,7 @@ namespace Infrastructure.Implementations
                 return Result.Failure("Could not find the monkey with the specified Id");
             }
             monkeyFromDb.Weight = monkey.NewMonkeyWeight;
+            monkeyFromDb.LastUpdateTime = DateTime.Now;
 
             await CarefulSaveChanges();
 

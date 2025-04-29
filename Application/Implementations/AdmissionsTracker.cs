@@ -25,27 +25,14 @@ namespace Application.Implementations
 
         public bool CanMonkeyBeAdmitted()
         {
-            return _admissionsRepository.GetTodayAdmittanceAmount() > maxNumberOfAdmittance;
+            return _admissionsRepository.GetTodayAdmittanceAmount() <= maxNumberOfAdmittance;
         }
-        public bool CanMonkeyDepart(MonkeySpecies species)
+        public async Task<Result> Admit(Maybe<int> monkeyId)
         {
-            return _departuresRepository.GetTodayDeparturesAmount() < 6 && _admissionsRepository.GetMonkeysAmountBySpecies(species) >= 1;
-        }
-
-        public bool IsSufficientMonkeyDeparture()
-        {
-            return _admissionsRepository.GetTodayAdmittanceAmount() <= 2;
-        }
-
-        public Task<int> GetAdmissionsForToday()
-        {
-            throw new NotImplementedException();
-        }
-
-        public async Task<Result> IncrementAdmissions(int monkeyId)
-        {
-               return await Admission.CreateAdmission(new AdmissionRequest { AdmittanceDate = DateTime.Today, MonkeyId = monkeyId })
-                .OnSuccessTry(async result => await _admissionsRepository.AddAdmittance(result));
+               return await monkeyId.ToResult("Monkey Id cannot be null")
+                .Ensure(p => p >= 0,"monkey id must be valid")
+                .Map(monkeyId => Admission.CreateAdmission(new AdmissionRequest { AdmittanceDate = DateTime.Today, MonkeyId = monkeyId }))
+                .OnSuccessTry(async monkeyId => await _admissionsRepository.AddAdmittance(monkeyId.Value));
         }
     }
 }

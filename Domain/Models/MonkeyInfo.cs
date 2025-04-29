@@ -4,9 +4,9 @@ namespace Domain.Models
 {
     public abstract class MonkeyInfo
     {
-        public abstract int MonkeyId { get; set; }
+        public abstract int Id { get; set; }
 
-        public abstract string MonkeyName { get; set; }
+        public abstract string Name { get; set; }
 
         public virtual DateTime CheckupTime { get; set; }
 

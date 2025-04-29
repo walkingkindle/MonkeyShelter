@@ -1,7 +1,6 @@
 ﻿using Application.Contracts;
 using Domain.Models;
 using Infrastructure.Contracts;
-using System.Threading.Tasks;
 
 namespace Application.Implementations
 {
@@ -16,11 +15,11 @@ namespace Application.Implementations
 
         public async Task<MonkeyVeterinaryCheckup> RetreiveMonkeysWithUpcomingVeteranaryCheckup()
         {
-            var monkeysThatHaveVetCheckToday = await _admissionsRepository.GetMonkeysByCheckupDate(DateTime.Today, DateTime.Today.AddDays(30));
+            var admissionsNext30 = await _admissionsRepository.GetMonkeysByCheckupDate(DateTime.Today, DateTime.Today.AddDays(30));
 
-            var monkeysThatHaveVetCheckInTheNext30 = await _admissionsRepository.GetMonkeysByCheckupDate(DateTime.Today, DateTime.Today.AddMonths(9));
+            var upcomingAdmissions = await _admissionsRepository.GetMonkeysByCheckupDate(DateTime.Today, DateTime.Today.AddMonths(9));
 
-            return new MonkeyVeterinaryCheckup { ScheduledInLessThan30Days = monkeysThatHaveVetCheckToday, ScheduledInMoreThan30Days = monkeysThatHaveVetCheckInTheNext30 };
+            return new MonkeyVeterinaryCheckup { ScheduledInLessThan30Days = admissionsNext30, ScheduledInMoreThan30Days = upcomingAdmissions };
         }
     }
 }

@@ -30,7 +30,7 @@ namespace Infrastructure.Implementations
         {
             return await _monkeyShelterDbContext.Admissions
                 .Where(p => p.MonkeyCheckupTime >= dateFrom && p.MonkeyCheckupTime <= dateTo)
-                .Select(z => new MonkeyCheckupResponse { MonkeyId = z.MonkeyId, MonkeyName = z.Monkey.Name, CheckupTime = z.MonkeyCheckupTime})
+                .Select(z => new MonkeyCheckupResponse { Id = z.MonkeyId, Name = z.Monkey.Name, CheckupTime = z.MonkeyCheckupTime})
                 .ToListAsync();
         }
 

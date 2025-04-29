@@ -19,22 +19,26 @@ namespace Infrastructure.Implementations
 
         }
 
-        public async Task<int> AddMonkeyToShelter(Monkey monkey)
+        public async Task<Result<int>> AddMonkeyToShelter(Monkey monkey)
         {
-            _monkeyShelterDbContext.Monkeys.Add(monkey);
+             _monkeyShelterDbContext.Monkeys.Add(monkey);
 
             await CarefulSaveChanges();
-            return monkey.Id;
+            return Result.Success(monkey.Id);
 
         }
 
-        public async Task<Result<Monkey>> GetMonkeyById(int id)
+        public async Task<Result<Monkey>> GetMonkeyById(Result<int> id)
         {
-            var monkey = await _monkeyShelterDbContext.Monkeys.FirstOrDefaultAsync(p => p.Id == id);
+            if (id.IsFailure)
+            {
+                return Result.Failure<Monkey>(id.Error);
+            }
+            var monkey = await _monkeyShelterDbContext.Monkeys.FirstOrDefaultAsync(p => p.Id == id.Value);
 
             if(monkey == null)
             {
-                return Result.Failure<Monkey>("Monkey does not exist");
+                return Result.Failure<Monkey>("Monkey with the specified Id could not be found");
             }
 
             return Result.Success(monkey);
@@ -47,9 +51,9 @@ namespace Infrastructure.Implementations
                 .Where(p => p.MonkeyAdmittanceDate >= dateFrom && p.MonkeyAdmittanceDate <= dateTo)
                 .Select(o => new MonkeyReportResponse
                 {
-                    MonkeyName = o.Monkey.Name,
+                    Name = o.Monkey.Name,
                     Species = o.Monkey.Species,
-                    MonkeyId = o.MonkeyId
+                    Id = o.MonkeyId
                 })
                 .ToListAsync();
         }
@@ -57,29 +61,31 @@ namespace Infrastructure.Implementations
         public async Task<List<MonkeyReportResponse>> GetMonkeysBySpecies(MonkeySpecies species)
         {
             return await _monkeyShelterDbContext.Monkeys.Where(p => p.Species == species)
-                .Select(p => new MonkeyReportResponse { MonkeyName = p.Name, Species = p.Species })
+                .Select(p => new MonkeyReportResponse { Name = p.Name, Species = p.Species })
                 .ToListAsync();
         }
 
         public async Task RemoveMonkeyFromShelter(Monkey monkey)
         {
-            Departure departure = new Departure(monkey.Id);
-
-            _monkeyShelterDbContext.Departures.Add(departure);
-
             _monkeyShelterDbContext.Monkeys.Remove(monkey);
 
             await CarefulSaveChanges();
 
         }
 
-        public async Task UpdateMonkey(MonkeyWeightRequest monkey)
+        public async Task<Result> UpdateMonkey(MonkeyWeightRequest monkey)
         {
             var monkeyFromDb = await _monkeyShelterDbContext.Monkeys.FirstOrDefaultAsync(p => p.Id == monkey.MonkeyId);
 
+            if(monkeyFromDb == null)
+            {
+                return Result.Failure("Could not find the monkey with the specified Id");
+            }
             monkeyFromDb.Weight = monkey.NewMonkeyWeight;
 
             await CarefulSaveChanges();
+
+            return Result.Success();
         }
 
         private async Task CarefulSaveChanges()

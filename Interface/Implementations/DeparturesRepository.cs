@@ -1,4 +1,5 @@
-﻿using Infrastructure.Contracts;
+﻿using Domain.Entities;
+using Infrastructure.Contracts;
 using System.Threading.Tasks;
 
 namespace Infrastructure.Implementations
@@ -15,5 +16,16 @@ namespace Infrastructure.Implementations
         {
             return _dbContext.Departures.Where(p => p.DepartureDate == DateTime.Today).Count();
         }
+
+        public async Task Depart(int monkeyId)
+        {
+             Departure departure = new Departure(monkeyId);
+
+            _dbContext.Departures.Add(departure);
+
+            await _dbContext.SaveChangesAsync();
+        }
+
+
     }
 }

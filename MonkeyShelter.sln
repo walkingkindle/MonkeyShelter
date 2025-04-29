@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.13.35919.96 d17.13
+VisualStudioVersion = 17.13.35919.96
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Domain", "Domain\Domain.csproj", "{38F4E61A-2272-4AB1-A6B3-0D5556FE4084}"
 EndProject
@@ -10,6 +10,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Infrastructure", "Interface\Infrastructure.csproj", "{9C550F34-3F6A-4125-A515-E0A222FAC8B2}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Presentation", "Presentation\Presentation.csproj", "{EECC3BC1-B8C1-4605-8DD6-9ED9C52DD89B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MonkeyShelter.Test", "MonkeyShelter.Test\MonkeyShelter.Test.csproj", "{1D489E69-6294-4557-8A3F-DC12D80CC00E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +35,10 @@ Global
 		{EECC3BC1-B8C1-4605-8DD6-9ED9C52DD89B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EECC3BC1-B8C1-4605-8DD6-9ED9C52DD89B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EECC3BC1-B8C1-4605-8DD6-9ED9C52DD89B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1D489E69-6294-4557-8A3F-DC12D80CC00E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1D489E69-6294-4557-8A3F-DC12D80CC00E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1D489E69-6294-4557-8A3F-DC12D80CC00E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1D489E69-6294-4557-8A3F-DC12D80CC00E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -18,7 +18,7 @@ namespace Presentation.Controllers
             _checkupService = checkupService;
         }
 
-        [HttpPost]
+        [HttpPost("/monkeys")]
         public async Task<IActionResult> AdmitMonkeyToShelter(MonkeyEntryRequest request)
         {
             var result = await _monkeyService.AddMonkey(request);
@@ -28,7 +28,7 @@ namespace Presentation.Controllers
             return result.ToActionResult();
         }
 
-        [HttpDelete]
+        [HttpDelete("/monkeys/{id}")]
         public async Task<IActionResult> DepartMonkeyFromShelter(MonkeyDepartureRequest request)
         {
             var result = await _monkeyService.DepartMonkey(request);
@@ -38,7 +38,7 @@ namespace Presentation.Controllers
             return result.ToActionResult();
         }
 
-        [HttpPatch]
+        [HttpPatch("/monkeys/{id}/weight")]
         public async Task<IActionResult> UpdateMonkeyWeight(MonkeyWeightRequest request)
         {
             var result = await _monkeyService.UpdateMonkeyWeight(request);
@@ -48,7 +48,7 @@ namespace Presentation.Controllers
             return result.ToActionResult();
         }
 
-        [HttpGet("/vetCheck")]
+        [HttpGet("/monkeys/{id}/vet-check")]
         public async Task<IActionResult> CheckForVetCheckup()
         {
             var result = await _checkupService.RetreiveMonkeysWithUpcomingVeteranaryCheckup();
@@ -61,17 +61,7 @@ namespace Presentation.Controllers
 
         }
 
-        [HttpGet("/species")]
-        public async Task<ActionResult<List<MonkeyInfo>>> GetMonkeyBySpecies(MonkeySpecies species)
-        {
-             return Ok(await _monkeyService.GetMonkeyBySpecies(species));
-        }
 
-        [HttpGet("/monkeys")]
-        public async Task<ActionResult<List<MonkeyInfo>>> GetMonkeysByArrivalDate(DateTime dateFrom, DateTime dateTo)
-        {
-            return Ok(await _monkeyService.GetMonkeysByDate(dateFrom, dateTo));
-        }
 
 
         

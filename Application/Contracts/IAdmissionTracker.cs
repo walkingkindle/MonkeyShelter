@@ -6,14 +6,6 @@ namespace Application.Contracts
     public interface IAdmissionTracker
     {
         public bool CanMonkeyBeAdmitted();
-        public Task<int> GetAdmissionsForToday();
-
-        public Task<Result> IncrementAdmissions(int monkeyId);
-
-        public bool CanMonkeyDepart(MonkeySpecies species);
-
-        public bool IsSufficientMonkeyDeparture();
-
-
+        public Task<Result> Admit(Maybe<int> monkeyId);
     }
 }

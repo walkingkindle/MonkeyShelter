@@ -9,32 +9,84 @@ namespace Application.Implementations
 {
     public class MonkeyService : IMonkeyService
     {
-        public IAdmissionTracker _admissionTracker;
-        public IMonkeyRepository _monkeyRepository;
+        private readonly IAdmissionTracker _admissionTracker;
+        private readonly IMonkeyRepository _monkeyRepository;
+        private readonly IDepartureService _departureService;
 
-        public MonkeyService(IAdmissionTracker admissionTracker, IMonkeyRepository monkeyRepository)
+        public MonkeyService(IAdmissionTracker admissionTracker, IMonkeyRepository monkeyRepository, IDepartureService departureService)
         {
             _admissionTracker = admissionTracker;
             _monkeyRepository = monkeyRepository;
+            _departureService = departureService;
         }
-
         public async Task<Result> AddMonkey(Maybe<MonkeyEntryRequest> request)
         {
-            return request.ToResult("Request for entry cannot be null")
-            .Ensure(result => MonkeyCanBeAdmitted(), "Shelter is currently full")
-            .Map(monkey => Monkey.CreateMonkey(request)
-            .OnSuccess(async monkey => await _monkeyRepository.AddMonkeyToShelter(monkey))
-            .OnSuccess(async monkey => await _admissionTracker.IncrementAdmissions(monkey.Id)));
+            var requestResult = request.ToResult("Request for entry cannot be null")
+                .Ensure(_ => _admissionTracker.CanMonkeyBeAdmitted(), "Shelter is currently full");
+
+            if (requestResult.IsFailure)
+            {
+                return Result.Failure(requestResult.Error);
+            }
+
+            var createResult = Monkey.CreateMonkey(request);
+
+            if (createResult.IsFailure)
+            {
+                return Result.Failure(createResult.Error);
+            }
+
+            var monkeyIdResult = await _monkeyRepository.AddMonkeyToShelter(createResult.Value);
+
+            if (monkeyIdResult.IsFailure)
+            {
+                return Result.Failure(monkeyIdResult.Error);
+            }
+            var admittanceResult = await _admissionTracker.Admit(monkeyIdResult.AsMaybe());
+
+            if (admittanceResult.IsFailure)
+            {
+                return Result.Failure(admittanceResult.Error);
+            }
+
+            return Result.Success();
+
         }
- 
-        public Task<Result> DepartMonkey(Maybe<MonkeyDepartureRequest> request)
+         
+        public async Task<Result> DepartMonkey(Maybe<MonkeyDepartureRequest> request)
         {
-            return request.ToResult("monkey Id must not be null")
-           .Ensure(result => _admissionTracker.IsSufficientMonkeyDeparture(), "Cannot be departed at this time")
-           .Bind(async result => await _monkeyRepository.GetMonkeyById(request.Value.MonkeyId)
-           .EnsureNotNull("We could not find the specified monkeyId")
-           .Ensure(result => MonkeyCanBeDeparted(result.Species), "We could not depart the selected monkey at this time.")
-           .OnSuccessTry(async result => await _monkeyRepository.RemoveMonkeyFromShelter(result)));
+            var idResult = request.ToResult("monkey Id must not be null");
+
+            if (idResult.IsFailure)
+            {
+                return Result.Failure(idResult.Error);
+            }
+
+            var monkeyResult = await _monkeyRepository.GetMonkeyById(idResult.Value.MonkeyId);
+
+            if (monkeyResult.IsFailure)
+            {
+                return Result.Failure(monkeyResult.Error);
+            }
+
+            var departurePermission = _departureService.CanMonkeyDepart(monkeyResult.Value.Species);
+
+            if (!departurePermission)
+            {
+                return Result.Failure("We cannot depart the monkey at this time.");
+            }
+
+            await _monkeyRepository.RemoveMonkeyFromShelter(monkeyResult.Value);
+
+            var departureResult = await _departureService.Depart(request.Value.MonkeyId);
+
+            if (departureResult.IsFailure)
+            {
+                return Result.Failure("Failed writing the departure data");
+            }
+
+            return Result.Success();
+           
         }
 
         public async Task<List<MonkeyReportResponse>> GetMonkeyBySpecies(Maybe<MonkeySpecies> species)
@@ -47,24 +99,20 @@ namespace Application.Implementations
             return await _monkeyRepository.GetMonkeysByDate(dateFrom, dateTo);
         }
 
-        public Task<Result> UpdateMonkeyWeight(Maybe<MonkeyWeightRequest> request)
+        public async Task<Result> UpdateMonkeyWeight(Maybe<MonkeyWeightRequest> request)
         {
-                 return request.ToResult("Monkey must have some weight present")
+            var requestResult = request.ToResult("Monkey must have some weight present")
                 .Ensure(request => request.MonkeyId >= 0, "monkey Id must be valid")
-                .Ensure(request => request.NewMonkeyWeight > 0, "Monkey must have a valid weight")
-                .Bind(async result => await _monkeyRepository.GetMonkeyById(request.Value.MonkeyId))
-                .EnsureNotNull("We could not find the specified monkeyId")
-                .OnSuccessTry(async result => await _monkeyRepository.UpdateMonkey(request.Value));
-        }
+                .Ensure(request => request.NewMonkeyWeight > 0, "Monkey must have a valid weight");
 
-        private bool MonkeyCanBeAdmitted()
-        {
-           return _admissionTracker.CanMonkeyBeAdmitted();
-        }
+            if (requestResult.IsFailure)
+            {
+                return Result.Failure(requestResult.Error);
+            }
 
-        private bool MonkeyCanBeDeparted(MonkeySpecies species)
-        {
-           return _admissionTracker.CanMonkeyDepart(species);
+            await _monkeyRepository.UpdateMonkey(request.Value);
+
+            return Result.Success();
         }
     }
 }

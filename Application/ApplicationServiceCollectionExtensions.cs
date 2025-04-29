@@ -14,6 +14,8 @@ namespace Application
 
             services.AddTransient<ICheckupService, CheckupService>();
 
+            services.AddTransient<IDepartureService, DepartureService>();
+
             return services;
         }
     }

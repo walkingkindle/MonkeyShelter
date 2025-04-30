@@ -21,6 +21,8 @@ namespace Infrastructure
             services.AddScoped<InitialDbDataSeed>();
 
 
+
+
             return services;
 
 

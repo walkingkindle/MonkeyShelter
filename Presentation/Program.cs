@@ -1,5 +1,6 @@
 using Infrastructure;
 using Infrastructure.Middleware;
+using Microsoft.EntityFrameworkCore;
 using Presentation;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -15,9 +16,13 @@ app.UseMiddleware<RequestLoggingMiddleware>();
 
 using (var scope = app.Services.CreateScope())
 {
+    var dbContext = scope.ServiceProvider.GetRequiredService<MonkeyShelterDbContext>();
+    dbContext.Database.Migrate();
     var seeder = scope.ServiceProvider.GetRequiredService<InitialDbDataSeed>();
 
     seeder.Seed();
+
+
 }
 
 // Configure the HTTP request pipeline

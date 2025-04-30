@@ -1,4 +1,5 @@
 ﻿using Application.Contracts;
+using Application.Contracts.Business;
 using Application.Contracts.Repositories;
 using Application.Implementations;
 using Application.Shared.Models;
@@ -40,8 +41,7 @@ namespace MonkeyShelter.Test.Unit
             var result = await _mockCheckupService.RetreiveMonkeysWithUpcomingVeteranaryCheckup();
 
             Assert.NotNull(result);
-            Assert.Equal(listNext30, result.ScheduledInLessThan30Days);
-            Assert.Equal(listMoreThan30, result.ScheduledInMoreThan30Days);
+            Assert.Equal(listMoreThan30, result.ScheduledCheckups);
 
             _admissionsRepository.Verify(r => r.GetMonkeysByCheckupDate(DateTime.Today, DateTime.Today.AddDays(30)), Times.Once);
             _admissionsRepository.Verify(r => r.GetMonkeysByCheckupDate(DateTime.Today, DateTime.Today.AddMonths(9)), Times.Once);

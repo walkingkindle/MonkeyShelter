@@ -1,4 +1,4 @@
-﻿using Application.Contracts;
+﻿using Application.Contracts.Business;
 using Application.Contracts.Repositories;
 using CSharpFunctionalExtensions;
 using Domain.DatabaseModels;
@@ -27,7 +27,7 @@ namespace Application.Implementations
             if (existingManager != null)
                 return Result.Success(existingManager.Id);
 
-            var shelterManagerResult = ShelterManager.CreateShelterManager(username);
+            var shelterManagerResult = ShelterManager.Create(username);
             if (shelterManagerResult.IsFailure)
                 return Result.Failure<int>(shelterManagerResult.Error);
 
@@ -37,14 +37,12 @@ namespace Application.Implementations
 
             var createdManager = await _shelterManagerRepository.CreateShelterManager(shelterManager);
 
-            // Step 2: Create Shelter with the new manager’s ID
-            var shelter = Shelter.CreateShelter(createdManager.Id);
+            var shelter = Shelter.Create(createdManager.Id);
             if (shelter.IsFailure)
                 return Result.Failure<int>(shelter.Error);
 
             int shelterId = await _shelterRepository.AddNewShelter(new ShelterDbModel(shelterManager.Id));
 
-            // Step 3: Update the manager to link it to the shelter (optional if needed)
             await _shelterManagerRepository.UpdateShelterId(createdManager.Id, shelterId);
 
             return Result.Success(createdManager.Id);

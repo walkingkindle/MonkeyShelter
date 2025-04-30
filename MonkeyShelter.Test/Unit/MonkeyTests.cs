@@ -19,9 +19,8 @@ namespace MonkeyShelter.Test.Unit
                 Species = MonkeySpecies.Capuchin,
                 Name = "Bobo",
                 Weight = -3.2,
-                ShelterId = 6,
             };
-            var monkeyResult = Monkey.CreateMonkey(request.Name, request.Weight, request.Species,request.ShelterId);
+            var monkeyResult = Monkey.Create(request.Name, request.Weight, request.Species,6);
 
             Assert.True(monkeyResult.IsFailure);
         }
@@ -36,9 +35,8 @@ namespace MonkeyShelter.Test.Unit
                 Species = invalidSpecies,
                 Name = "Bobo",
                 Weight = -3.2,
-                ShelterId = 6
             };
-            var monkeyResult = Monkey.CreateMonkey(request.Name, request.Weight, request.Species, request.ShelterId);
+            var monkeyResult = Monkey.Create(request.Name, request.Weight, request.Species, 6);
 
             Assert.True(monkeyResult.IsFailure);
         }
@@ -51,9 +49,8 @@ namespace MonkeyShelter.Test.Unit
                 Species = MonkeySpecies.Capuchin,
                 Name = "",
                 Weight = 3.2,
-                ShelterId = 6
             };
-            var monkeyResult = Monkey.CreateMonkey(request.Name, request.Weight, request.Species, request.ShelterId);
+            var monkeyResult = Monkey.Create(request.Name, request.Weight, request.Species,6);
 
             Assert.True(monkeyResult.IsFailure);
         }

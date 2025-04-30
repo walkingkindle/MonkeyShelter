@@ -4,6 +4,8 @@ using Application.Extensions;
 using Domain.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Application.Shared.Models;
+using Application.Contracts.Business;
+using Application.Contracts.Auth;
 
 namespace Presentation.Controllers
 {
@@ -13,15 +15,18 @@ namespace Presentation.Controllers
     {
         private readonly IMonkeyService _monkeyService;
         private readonly ICheckupService _checkupService;
-        public MonkeyShelterController(IMonkeyService monkeyService, ICheckupService checkupService)
+        private readonly IShelterAuthorizationService _shelterAuthorizationService;
+        public MonkeyShelterController(IMonkeyService monkeyService, ICheckupService checkupService,
+            IShelterAuthorizationService shelterAuthorizationService)
         {
             _monkeyService = monkeyService;
             _checkupService = checkupService;
+            _shelterAuthorizationService = shelterAuthorizationService;
         }
 
         [Authorize]
         [HttpPost("")]
-        public async Task<IActionResult> AdmitMonkeyToShelter(MonkeyEntryRequest request)
+        public async Task<ActionResult<Monkey>> AdmitMonkeyToShelter(MonkeyEntryRequest request)
         {
             var shelterIdClaim = User.FindFirst("ShelterId");
 
@@ -29,11 +34,14 @@ namespace Presentation.Controllers
             {
                 return Unauthorized("ShelterId is missing or invalid in the token.");
             }
-            var result = await _monkeyService.AddMonkey(request);
 
-            HttpContext.Items["Result"] = result;
+            var result = await _monkeyService.AddMonkey(request, shelterId);
 
-            return result.ToActionResult();
+            if (result.IsFailure)
+            {
+                return BadRequest(result.Error);
+            }
+            return Ok(result.Value);
         }
 
         [Authorize]
@@ -46,6 +54,9 @@ namespace Presentation.Controllers
             {
                 return Unauthorized("ShelterId is missing or invalid in the token.");
             }
+
+            if (!await _shelterAuthorizationService.IsMonkeyOwnedByShelterAsync(id, shelterId))
+                return Forbid();
 
             var request = new MonkeyDepartureRequest { MonkeyId = id };
 
@@ -66,6 +77,10 @@ namespace Presentation.Controllers
             {
                 return Unauthorized("ShelterId is missing or invalid in the token.");
             }
+
+            if (!await _shelterAuthorizationService.IsMonkeyOwnedByShelterAsync(request.MonkeyId, shelterId))
+                return Forbid();
+
             var result = await _monkeyService.UpdateMonkeyWeight(request);
 
             HttpContext.Items["Result"] = result;
@@ -80,8 +95,7 @@ namespace Presentation.Controllers
 
             return Ok(new
             {
-                ScheduledInTheNext30 = result.ScheduledInLessThan30Days,
-                UpcomingVetChecks = result.ScheduledInMoreThan30Days
+                upcomingCheckups = result.ScheduledCheckups,
             });
 
         }

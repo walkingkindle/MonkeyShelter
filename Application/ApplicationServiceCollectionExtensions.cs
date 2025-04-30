@@ -1,6 +1,7 @@
-﻿using Application.Auth.Contracts;
-using Application.Auth.Implementations;
+﻿using Application.Auth.Implementations;
 using Application.Contracts;
+using Application.Contracts.Auth;
+using Application.Contracts.Business;
 using Application.Implementations;
 using Application.Settings;
 using Microsoft.Extensions.Configuration;
@@ -24,6 +25,8 @@ namespace Application
             services.AddTransient<IDepartureService, DepartureService>();
 
             services.AddTransient<IShelterService, ShelterService>();
+
+            services.AddTransient<IShelterAuthorizationService, ShelterAuthorizationService>();
 
             var jwtSettings = new JwtSettings();
             services.Configure<JwtSettings>(configuration.GetSection("JwtSettings"));

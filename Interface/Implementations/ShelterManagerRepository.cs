@@ -1,6 +1,5 @@
 ﻿using Application.Contracts.Repositories;
 using Domain.DatabaseModels;
-using Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Implementations
@@ -8,18 +7,19 @@ namespace Infrastructure.Implementations
     public class ShelterManagerRepository : IShelterManagerRepository
     {
         private readonly MonkeyShelterDbContext _dbContext;
+        private readonly IDbHelper _dbHelper;
 
-        public ShelterManagerRepository(MonkeyShelterDbContext dbContext)
+        public ShelterManagerRepository(MonkeyShelterDbContext dbContext, IDbHelper dbHelper)
         {
             _dbContext = dbContext;
+            _dbHelper = dbHelper;
         }
 
         public async Task<ShelterManagerDbModel> CreateShelterManager(ShelterManagerDbModel shelterManager)
         {
             _dbContext.ShelterManagers.Add(shelterManager);
 
-            await _dbContext.SaveChangesAsync();
-
+            await _dbHelper.CarefulSaveChanges(_dbContext);
             return shelterManager;
         }
 
@@ -28,16 +28,16 @@ namespace Infrastructure.Implementations
             return await _dbContext.ShelterManagers.FirstOrDefaultAsync(p => p.Name == name);
         }
 
-    public async Task UpdateShelterId(int managerId, int shelterId)
-    {
-        var manager = await _dbContext.ShelterManagers.FindAsync(managerId);
-        if (manager == null)
+        public async Task UpdateShelterId(int managerId, int shelterId)
         {
-            throw new InvalidOperationException("Shelter manager not found");
+            var manager = await _dbContext.ShelterManagers.FindAsync(managerId);
+            if (manager == null)
+            {
+                throw new InvalidOperationException("Shelter manager not found");
+            }
+            manager.ShelterId = shelterId;
+            await _dbHelper.CarefulSaveChanges(_dbContext);
         }
-        manager.ShelterId = shelterId;
-        await _dbContext.SaveChangesAsync();
-    }
 
     }
 }

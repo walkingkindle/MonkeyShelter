@@ -8,9 +8,7 @@ public class ShelterManagerDbModel
     }
 
     public int Id { get; set; }
-
     public string Name { get; set; }
-
     public ShelterDbModel Shelter { get; set; }
     public int ShelterId { get; set; }
 }

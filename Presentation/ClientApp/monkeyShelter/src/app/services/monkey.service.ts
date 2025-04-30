@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { catchError, Observable, of, throwError } from 'rxjs';
 import { MonkeyEntryRequest } from '../models/MonkeyEntryRequest';
-import { HttpClient, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpParams } from '@angular/common/http';
 import { MonkeyDepartureRequest } from '../models/MonkeyDepartureRequest';
 import { MonkeyDateRequest } from '../models/MonkeyDateRequest';
 import {MonkeyWeightRequest} from '../models/MonkeyWeightRequest'
@@ -44,7 +44,26 @@ export class MonkeyService {
     return this.http.delete(`${this.monkeysApiUrl}/${monkeyId}`, {responseType: 'text'});
   }
 
-  admitMonkeyToShelter(request: MonkeyEntryRequest): Observable<any> {
-    return this.http.post(this.monkeysApiUrl, request, {responseType:'text'});
+admitMonkeyToShelter(request: MonkeyEntryRequest): Observable<MonkeyReportResponse | string> {
+  return this.http.post<MonkeyReportResponse | string>(this.monkeysApiUrl, request).pipe(
+    catchError((error) => {
+      return of(this.handleError(error)); 
+    })
+  );
+}
+private handleError(error: HttpErrorResponse): string {
+  let errorMessage = 'An unexpected error occurred.';
+
+  if (error.status === 401) {
+    errorMessage = 'You are not authorized to perform this action.';
+  } else if (error.status === 403) {
+    errorMessage = 'You do not have permission to admit a monkey.';
+  } else if (error.status === 400) {
+    errorMessage = error.error || 'Invalid request data.';
   }
+
+  return errorMessage; 
+}
+
+
 }

@@ -26,3 +26,14 @@
     </button>
   </form>
 </div>
+
+<app-monkey-report-table
+  *ngIf="monkeyData"
+  [data]="monkeyData"
+  [columns]="[
+    { field: 'id', header: 'ID' },
+    { field: 'name', header: 'Name' },
+    { field: 'species', header: 'Species' }
+  ]">
+</app-monkey-report-table>
+

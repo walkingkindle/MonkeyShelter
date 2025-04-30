@@ -1,7 +1,7 @@
 ﻿
 using Application.Shared.Models;
 
-namespace Application.Contracts
+namespace Application.Contracts.Business
 {
     public interface ICheckupService
     {

@@ -1,11 +1,10 @@
 ﻿
 namespace Application.Shared.Models
 {
-    public class MonkeyCheckupResponse : MonkeyInfo
+    public class MonkeyCheckupResponse
     {
-        public override int Id { get; set; }
-        public override string Name { get; set; }
-
-        public override DateTime CheckupTime { get; set; }
+        public int Id { get; set; }
+        public string Name { get; set; }
+        public DateTime CheckupTime { get; set; }
     }
 }

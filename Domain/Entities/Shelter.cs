@@ -11,7 +11,7 @@ public class Shelter
         ShelterManagerId = shelterManagerId;
     }
 
-    public static Result<Shelter> CreateShelter(int shelterManagerId)
+    public static Result<Shelter> Create(int shelterManagerId)
     {
         if (shelterManagerId <= 0)
         {

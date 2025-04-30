@@ -1,4 +1,4 @@
-﻿using Application.Auth.Contracts;
+﻿using Application.Contracts.Auth;
 using CSharpFunctionalExtensions;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;

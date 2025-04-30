@@ -17,7 +17,7 @@ namespace Domain.Entities
 
         public int ShelterId { get; set; }
 
-        public static Result<Monkey> CreateMonkey(Maybe<string> monkeyName, Maybe<double> monkeyWeight, Maybe<MonkeySpecies> monkeySpecies, Maybe<int> shelterId)
+        public static Result<Monkey> Create(Maybe<string> monkeyName, Maybe<double> monkeyWeight, Maybe<MonkeySpecies> monkeySpecies, Maybe<int> shelterId)
         {
             return monkeyName.ToResult("Monkey cannot be null")
                 .Ensure(monkey => !string.IsNullOrEmpty(monkeyName.Value), "Monkey must have a name")

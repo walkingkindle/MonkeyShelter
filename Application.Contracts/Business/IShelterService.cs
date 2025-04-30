@@ -1,7 +1,6 @@
 ﻿using CSharpFunctionalExtensions;
-using Domain.Entities;
 
-namespace Application.Contracts
+namespace Application.Contracts.Business
 {
     public interface IShelterService{
         Task<Result<int>> CreateShelter(Maybe<string> username);

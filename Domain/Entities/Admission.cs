@@ -13,7 +13,7 @@ namespace Domain.Entities
         public DateTime MonkeyCheckupTime { get; set; }
 
 
-        public static Result<Admission> CreateAdmission(Maybe<int> monkeyId, Maybe<DateTime> admittanceDate)
+        public static Result<Admission> Create(Maybe<int> monkeyId, Maybe<DateTime> admittanceDate)
         {
             return monkeyId.ToResult("Admission cannot be null")
                 .Ensure(request => request >= 0, "Admittance entry must have a valid monkey Id")

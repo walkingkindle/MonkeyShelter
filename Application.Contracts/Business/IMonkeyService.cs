@@ -1,12 +1,11 @@
-﻿using Application.Implementations;
-using Application.Shared.Models;
+﻿using Application.Shared.Models;
 using CSharpFunctionalExtensions;
 using Domain.Enums;
 
-namespace Application.Contracts{
+namespace Application.Contracts.Business { 
     public interface IMonkeyService
     {
-        public Task<Result> AddMonkey(Maybe<MonkeyEntryRequest> request);
+        public Task<Result<MonkeyReportResponse>> AddMonkey(Maybe<MonkeyEntryRequest> request, int shelterId);
 
         public Task<Result> DepartMonkey(Maybe<MonkeyDepartureRequest> request);
 

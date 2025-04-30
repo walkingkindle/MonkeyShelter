@@ -10,7 +10,7 @@ namespace MonkeyShelter.Test.Unit
 
         public void Create_Admission_Should_Succeeed()
         {
-            Result<Admission> admissionRequest = Admission.CreateAdmission(1, DateTime.Today);
+            Result<Admission> admissionRequest = Admission.Create(1, DateTime.Today);
             
              Assert.True(admissionRequest.IsSuccess);
         }
@@ -18,13 +18,13 @@ namespace MonkeyShelter.Test.Unit
         [Fact]
         public void Create_Admission_Should_FailInvalid_Data_Id()
         {
-            Assert.True(Admission.CreateAdmission(-6,DateTime.Today).IsFailure);
+            Assert.True(Admission.Create(-6,DateTime.Today).IsFailure);
         }
 
         [Fact]
         public void Create_Admission_Should_Fail_Invalid_Data_Date()
         {
-            Assert.True(Admission.CreateAdmission(2,DateTime.Today.AddDays(-5)).IsFailure);
+            Assert.True(Admission.Create(2,DateTime.Today.AddDays(-5)).IsFailure);
         }
     }
 }

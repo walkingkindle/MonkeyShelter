@@ -1,6 +1,8 @@
 ﻿using Application.Contracts;
+using Application.Contracts.Business;
 using Application.Contracts.Repositories;
 using CSharpFunctionalExtensions;
+using Domain.Entities;
 using Domain.Enums;
 
 namespace Application.Implementations
@@ -25,11 +27,16 @@ namespace Application.Implementations
                 && _admissionsRepository.GetTodayAdmittanceAmount() <= 2;
         }
 
-        public async Task<Result> Depart(Maybe<int> monkeyId)
+        public async Task<Result> Depart(int monkeyId)
         {
-            return await monkeyId.ToResult("monkey id must not be null")
-                 .Ensure(monkeyId => monkeyId >= 0, "Monkey Id must be valid")
-                 .OnSuccessTry(async result => await _departuresRepository.Depart(monkeyId.Value));
+            var departureResult = Departure.Create(monkeyId);
+
+            if (departureResult.IsFailure)
+                return Result.Failure(departureResult.Error);
+
+            await _departuresRepository.Depart(monkeyId);
+
+            return Result.Success();
 
         }
     }

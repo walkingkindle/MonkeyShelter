@@ -1,6 +1,6 @@
 ﻿using CSharpFunctionalExtensions;
 
-namespace Application.Auth.Contracts
+namespace Application.Contracts.Auth
 {
     public interface IAuthService
     {

@@ -1,5 +1,6 @@
-﻿using Application.Auth.Contracts;
-using Application.Contracts;
+﻿using Application.Contracts;
+using Application.Contracts.Auth;
+using Application.Contracts.Business;
 using Application.Implementations;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;

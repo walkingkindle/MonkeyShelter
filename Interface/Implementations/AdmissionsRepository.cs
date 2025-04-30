@@ -1,7 +1,6 @@
 ﻿using Application.Contracts.Repositories;
 using Application.Shared.Models;
 using Domain.DatabaseModels;
-using Domain.Entities;
 using Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 
@@ -10,24 +9,26 @@ namespace Infrastructure.Implementations
     public class AdmissionsRepository : IAdmissionsRepository
     {
         private readonly MonkeyShelterDbContext _monkeyShelterDbContext;
+        private readonly IDbHelper _dbHelper;
 
-        public AdmissionsRepository(MonkeyShelterDbContext monkeyShelterDbContext)
+        public AdmissionsRepository(MonkeyShelterDbContext monkeyShelterDbContext, IDbHelper dbHelper)
         {
             _monkeyShelterDbContext = monkeyShelterDbContext;
+            _dbHelper = dbHelper;
         }
 
         public async Task AddAdmittance(AdmissionDbModel admission)
         {
             _monkeyShelterDbContext.Admissions.Add(admission);
 
-            await _monkeyShelterDbContext.SaveChangesAsync();
+            await _dbHelper.CarefulSaveChanges(_monkeyShelterDbContext);
         }
 
         public async Task AddRangeAdmissions(List<AdmissionDbModel> Admissions)
         {
             _monkeyShelterDbContext.Admissions.AddRange(Admissions);
 
-            await _monkeyShelterDbContext.SaveChangesAsync();
+            await _dbHelper.CarefulSaveChanges(_monkeyShelterDbContext);
 
         }
 

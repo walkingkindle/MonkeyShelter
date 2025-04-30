@@ -13,19 +13,20 @@ namespace Infrastructure.Implementations
     {
         private readonly MonkeyShelterDbContext _monkeyShelterDbContext;
         private readonly ILogger<MonkeyRepository> _logger;
+        private readonly IDbHelper _dbHelper;
 
-        public MonkeyRepository(MonkeyShelterDbContext monkeyShelterDbContext, ILogger<MonkeyRepository> logger)
+        public MonkeyRepository(MonkeyShelterDbContext monkeyShelterDbContext, ILogger<MonkeyRepository> logger, IDbHelper dbHelper)
         {
             _monkeyShelterDbContext = monkeyShelterDbContext;
             _logger = logger;
-
+            _dbHelper = dbHelper;
         }
 
         public async Task<Result<int>> AddMonkeyToShelter(MonkeyDbModel monkey)
         {
            _monkeyShelterDbContext.Monkeys.Add(monkey);
 
-            await CarefulSaveChanges();
+            await _dbHelper.CarefulSaveChanges(_monkeyShelterDbContext);
             return Result.Success(monkey.Id);
 
         }
@@ -34,7 +35,7 @@ namespace Infrastructure.Implementations
         {
             _monkeyShelterDbContext.AddRange(monkeys);
 
-            await CarefulSaveChanges();
+            await _dbHelper.CarefulSaveChanges(_monkeyShelterDbContext);
         }
 
         public async Task<Result<MonkeyDbModel>> GetMonkeyById(int monkeyId)
@@ -76,7 +77,7 @@ namespace Infrastructure.Implementations
         {
             _monkeyShelterDbContext.Monkeys.Remove(monkey);
 
-            await CarefulSaveChanges();
+            await _dbHelper.CarefulSaveChanges(_monkeyShelterDbContext);
 
         }
 
@@ -91,23 +92,9 @@ namespace Infrastructure.Implementations
             monkeyFromDb.Weight = monkey.NewMonkeyWeight;
             monkeyFromDb.LastUpdateTime = DateTime.Now;
 
-            await CarefulSaveChanges();
+            await _dbHelper.CarefulSaveChanges(_monkeyShelterDbContext);
 
             return Result.Success();
-        }
-
-        private async Task CarefulSaveChanges()
-        {
-            try
-            {
-                await _monkeyShelterDbContext.SaveChangesAsync();
-            }
-            catch(Exception ex)
-            {
-                _logger.LogError($"An exception occurred while saving the changes , {ex.Message} ");
-                throw;
-            }
-
         }
     }
 }

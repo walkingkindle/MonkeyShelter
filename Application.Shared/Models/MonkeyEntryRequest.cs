@@ -10,7 +10,5 @@ namespace Application.Shared.Models
         public required MonkeySpecies Species { get; set; }
 
         public required double Weight { get; set; }
-
-        public int ShelterId { get; set; }
     }
 }

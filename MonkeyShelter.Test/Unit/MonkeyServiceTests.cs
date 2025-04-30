@@ -1,4 +1,4 @@
-﻿using Application.Contracts;
+﻿using Application.Contracts.Business;
 using Application.Contracts.Repositories;
 using Application.Implementations;
 using Application.Shared.Models;
@@ -38,15 +38,12 @@ namespace MonkeyShelter.Test.Unit
                 Species = MonkeySpecies.Capuchin,
                 Name = "Bobo",
                 Weight = 12.5,
-                ShelterId = 6
             };
             int newMonkeyId = 0;
 
-            _admissionTracker.Setup(p => p.CanMonkeyBeAdmitted()).Returns(true);
+            var result = await _service.AddMonkey(request,1);
 
-            var result = await _service.AddMonkey(request);
-
-            var monkey = Monkey.CreateMonkey(request.Name, request.Weight, request.Species, request.ShelterId);
+            var monkey = Monkey.Create(request.Name, request.Weight, request.Species, 1);
 
             Assert.True(monkey.IsSuccess);
 
@@ -76,15 +73,10 @@ namespace MonkeyShelter.Test.Unit
             Species = MonkeySpecies.Capuchin,
             Name = "Bobo",
             Weight = 12.3,
-            ShelterId = 6
         };
 
-        var monkey = Monkey.CreateMonkey(request.Name, request.Weight, request.Species, request.ShelterId).Value;
+        var monkey = Monkey.Create(request.Name, request.Weight, request.Species,6).Value;
 
-
-
-          _admissionTracker.Setup(t => t.CanMonkeyBeAdmitted())
-                            .Returns(true);
 
            Maybe<int> admittedMonkeyId = -1;
 
@@ -92,24 +84,23 @@ namespace MonkeyShelter.Test.Unit
                             .ReturnsAsync(monkey.Id);
     
             _admissionTracker
-            .Setup(t => t.Admit(It.IsAny<Maybe<int>>()))
+            .Setup(t => t.Admit(It.IsAny<int>()))
             .Callback<Maybe<int>>(id => admittedMonkeyId = id)
             .Returns(Task.FromResult(Result.Success()));
 
         // Act
-        var result = await _service.AddMonkey(Maybe.From(request));
+        var result = await _service.AddMonkey(Maybe.From(request),1);
 
         // Assert
         Assert.True(result.IsSuccess);
 
-        _admissionTracker.Verify(t => t.CanMonkeyBeAdmitted(), Times.Once);
         _monkeyRepository.Verify(r => r.AddMonkeyToShelter(It.Is<MonkeyDbModel>(m =>
             m.Name == request.Name &&
             m.Species == request.Species &&
             m.Weight == request.Weight
         )), Times.Once);
 
-            _admissionTracker.Verify(t => t.Admit(admittedMonkeyId), Times.Once);
+            _admissionTracker.Verify(t => t.Admit(admittedMonkeyId.Value), Times.Once);
             Assert.True(admittedMonkeyId.Value >= 0);
         }
 

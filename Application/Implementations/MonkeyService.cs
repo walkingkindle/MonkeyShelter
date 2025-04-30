@@ -7,6 +7,7 @@ using Domain.Enums;
 using Application.Contracts.Repositories;
 using Application.Shared.Models;
 using Domain.DatabaseModels;
+using Application.Contracts.Business;
 
 namespace Application.Implementations
 {
@@ -24,27 +25,26 @@ namespace Application.Implementations
             _departureService = departureService;
             _memoryCache = memoryCache;
         }
-        public async Task<Result> AddMonkey(Maybe<MonkeyEntryRequest> request)
+        public async Task<Result<MonkeyReportResponse>> AddMonkey(Maybe<MonkeyEntryRequest> request, int shelterId)
         {
-            var requestResult = request.ToResult("Request for entry cannot be null")
-                .Ensure(_ => _admissionTracker.CanMonkeyBeAdmitted(), "Shelter is currently full");
+            var requestResult = request.ToResult("Request for entry cannot be null");
 
             if (requestResult.IsFailure)
             {
-                return Result.Failure(requestResult.Error);
+                return Result.Failure<MonkeyReportResponse>(requestResult.Error);
             }
 
             var requestValue = request.Value;
-            var createResult = Monkey.CreateMonkey(
+            var createResult = Monkey.Create(
                 monkeyName:requestValue.Name,
                 monkeyWeight:requestValue.Weight,
                 monkeySpecies:requestValue.Species,
-                shelterId:requestValue.ShelterId
+                shelterId:shelterId
                 );
 
             if (createResult.IsFailure)
             {
-                return Result.Failure(createResult.Error);
+                return Result.Failure<MonkeyReportResponse>(createResult.Error);
             }
 
             MonkeyDbModel monkeyDbModel = new MonkeyDbModel(species:createResult.Value.Species,
@@ -56,19 +56,26 @@ namespace Application.Implementations
 
             if (monkeyIdResult.IsFailure)
             {
-                return Result.Failure(monkeyIdResult.Error);
+                return Result.Failure<MonkeyReportResponse>(monkeyIdResult.Error);
             }
 
             InvalidateCacheForSpecies(createResult.Value.Species);
 
-            var admittanceResult = await _admissionTracker.Admit(monkeyIdResult.AsMaybe());
+            var admittanceResult = await _admissionTracker.Admit(monkeyIdResult.Value);
 
             if (admittanceResult.IsFailure)
             {
-                return Result.Failure(admittanceResult.Error);
+                return Result.Failure<MonkeyReportResponse>(admittanceResult.Error);
             }
 
-            return Result.Success();
+            return Result.Success(new MonkeyReportResponse
+            {
+                Id = monkeyIdResult.Value,
+                Name = createResult.Value.Name,
+                Weight = createResult.Value.Weight,
+                Species = createResult.Value.Species,
+                LastEditDate = null
+            });
 
         }
          
@@ -142,13 +149,13 @@ namespace Application.Implementations
         public async Task<Result<List<MonkeyReportResponse>>> GetMonkeysByDate(MonkeyDateRequest dateTimes)
         {
             var validationResult = dateTimes.ToResult("DateTimesCannot be null")
-            .Ensure(result => !(result.DateFrom.Value > result.DateTo.Value), "Date from must not be higher than date to");
+            .Ensure(result => !(result.DateFrom > result.DateTo), "Date from must not be higher than date to");
 
             if (validationResult.IsFailure)
             {
                 return Result.Failure<List<MonkeyReportResponse>>("Date times provided are invalid");
             }
-            var result = await _monkeyRepository.GetMonkeysByDate(dateTimes.DateFrom.Value, dateTimes.DateTo.Value);
+            var result = await _monkeyRepository.GetMonkeysByDate(dateTimes.DateFrom, dateTimes.DateTo);
 
             return Result.Success(result);
         }

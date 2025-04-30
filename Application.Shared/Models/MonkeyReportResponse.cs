@@ -3,7 +3,8 @@
 
 namespace Application.Shared.Models
 {
-    public class MonkeyReportResponse    {
+    public class MonkeyReportResponse
+    {
         public int Id { get; set; }
         public string? Name { get; set; }
 

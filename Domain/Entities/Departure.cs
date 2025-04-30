@@ -8,7 +8,7 @@ namespace Domain.Entities
         public int MonkeyId { get; set; }
         public DateTime DepartureDate { get; set; }
 
-        public static Result<Departure> CreateDeparture(Maybe<int> monkeyId)
+        public static Result<Departure> Create(Maybe<int> monkeyId)
         {
             return monkeyId.ToResult("Monkey Id must not be null")
                 .Ensure(request => request > 0, "Monkey Id must be valid")

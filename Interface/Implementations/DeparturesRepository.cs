@@ -8,9 +8,11 @@ namespace Infrastructure.Implementations
     public class DeparturesRepository : IDeparturesRepository
     {
         private readonly MonkeyShelterDbContext _dbContext;
-        public DeparturesRepository(MonkeyShelterDbContext dbContext)
+        private readonly IDbHelper _dbHelper;
+        public DeparturesRepository(MonkeyShelterDbContext dbContext, IDbHelper dbHelper)
         {
             _dbContext = dbContext;
+            _dbHelper = dbHelper;
             
         }
         public int GetTodayDeparturesAmount()
@@ -24,7 +26,7 @@ namespace Infrastructure.Implementations
 
             _dbContext.Departures.Add(departure);
 
-            await _dbContext.SaveChangesAsync();
+            await _dbHelper.CarefulSaveChanges(_dbContext);
         }
 
 

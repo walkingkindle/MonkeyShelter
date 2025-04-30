@@ -1,4 +1,4 @@
-﻿using Application.Auth.Contracts;
+﻿using Application.Contracts.Auth;
 using Application.Settings;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;

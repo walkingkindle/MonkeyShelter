@@ -17,7 +17,7 @@ namespace Infrastructure.Migrations
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "9.0.4");
 
-            modelBuilder.Entity("Domain.Entities.Admission", b =>
+            modelBuilder.Entity("Domain.DatabaseModels.AdmissionDbModel", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -39,7 +39,7 @@ namespace Infrastructure.Migrations
                     b.ToTable("Admissions");
                 });
 
-            modelBuilder.Entity("Domain.Entities.Departure", b =>
+            modelBuilder.Entity("Domain.DatabaseModels.DepartureDbModel", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -58,7 +58,7 @@ namespace Infrastructure.Migrations
                     b.ToTable("Departures");
                 });
 
-            modelBuilder.Entity("Domain.Entities.Monkey", b =>
+            modelBuilder.Entity("Domain.DatabaseModels.MonkeyDbModel", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -71,6 +71,12 @@ namespace Infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("TEXT");
 
+                    b.Property<int?>("ShelterDbModelId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("ShelterId")
+                        .HasColumnType("INTEGER");
+
                     b.Property<int>("Species")
                         .HasColumnType("INTEGER");
 
@@ -79,12 +85,49 @@ namespace Infrastructure.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("ShelterDbModelId");
+
                     b.ToTable("Monkeys");
                 });
 
-            modelBuilder.Entity("Domain.Entities.Admission", b =>
+            modelBuilder.Entity("Domain.DatabaseModels.ShelterDbModel", b =>
                 {
-                    b.HasOne("Domain.Entities.Monkey", "Monkey")
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("ShelterManagerId")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ShelterManagerId")
+                        .IsUnique();
+
+                    b.ToTable("Shelters");
+                });
+
+            modelBuilder.Entity("Domain.DatabaseModels.ShelterManagerDbModel", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("ShelterId")
+                        .HasColumnType("INTEGER");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ShelterManagers");
+                });
+
+            modelBuilder.Entity("Domain.DatabaseModels.AdmissionDbModel", b =>
+                {
+                    b.HasOne("Domain.DatabaseModels.MonkeyDbModel", "Monkey")
                         .WithMany()
                         .HasForeignKey("MonkeyId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -93,15 +136,44 @@ namespace Infrastructure.Migrations
                     b.Navigation("Monkey");
                 });
 
-            modelBuilder.Entity("Domain.Entities.Departure", b =>
+            modelBuilder.Entity("Domain.DatabaseModels.DepartureDbModel", b =>
                 {
-                    b.HasOne("Domain.Entities.Monkey", "Monkey")
+                    b.HasOne("Domain.DatabaseModels.MonkeyDbModel", "Monkey")
                         .WithMany()
                         .HasForeignKey("MonkeyId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Monkey");
+                });
+
+            modelBuilder.Entity("Domain.DatabaseModels.MonkeyDbModel", b =>
+                {
+                    b.HasOne("Domain.DatabaseModels.ShelterDbModel", null)
+                        .WithMany("Monkeys")
+                        .HasForeignKey("ShelterDbModelId");
+                });
+
+            modelBuilder.Entity("Domain.DatabaseModels.ShelterDbModel", b =>
+                {
+                    b.HasOne("Domain.DatabaseModels.ShelterManagerDbModel", "ShelterManager")
+                        .WithOne("Shelter")
+                        .HasForeignKey("Domain.DatabaseModels.ShelterDbModel", "ShelterManagerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ShelterManager");
+                });
+
+            modelBuilder.Entity("Domain.DatabaseModels.ShelterDbModel", b =>
+                {
+                    b.Navigation("Monkeys");
+                });
+
+            modelBuilder.Entity("Domain.DatabaseModels.ShelterManagerDbModel", b =>
+                {
+                    b.Navigation("Shelter")
+                        .IsRequired();
                 });
 #pragma warning restore 612, 618
         }

@@ -1,6 +1,7 @@
-﻿using Domain.Entities;
+﻿
+using Domain.Enums;
 
-namespace Domain.Models
+namespace Application.Shared.Models
 {
     public class MonkeyEntryRequest
     {
@@ -9,5 +10,7 @@ namespace Domain.Models
         public required MonkeySpecies Species { get; set; }
 
         public required double Weight { get; set; }
+
+        public int ShelterId { get; set; }
     }
 }

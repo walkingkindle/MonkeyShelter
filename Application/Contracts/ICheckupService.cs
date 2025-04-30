@@ -1,4 +1,5 @@
-﻿using Domain.Models;
+﻿
+using Application.Shared.Models;
 
 namespace Application.Contracts
 {

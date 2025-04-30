@@ -1,8 +1,9 @@
 ﻿using Application.Contracts;
+using Application.Contracts.Repositories;
+using Application.Shared.Models;
 using CSharpFunctionalExtensions;
+using Domain.DatabaseModels;
 using Domain.Entities;
-using Domain.Models;
-using Infrastructure.Contracts;
 using System.Threading.Tasks;
 
 namespace Application.Implementations
@@ -31,8 +32,8 @@ namespace Application.Implementations
         {
                return await monkeyId.ToResult("Monkey Id cannot be null")
                 .Ensure(p => p >= 0,"monkey id must be valid")
-                .Map(monkeyId => Admission.CreateAdmission(new AdmissionRequest { AdmittanceDate = DateTime.Today, MonkeyId = monkeyId }))
-                .OnSuccessTry(async monkeyId => await _admissionsRepository.AddAdmittance(monkeyId.Value));
+                .Map(monkeyId => Admission.CreateAdmission(monkeyId, DateTime.Today))
+                .OnSuccessTry(async result=> await _admissionsRepository.AddAdmittance(new AdmissionDbModel(result.Value.MonkeyId, DateTime.Today)));
         }
     }
 }

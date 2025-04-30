@@ -1,7 +1,7 @@
 ﻿using Application.Contracts;
 using Application.Implementations;
-using Domain.Entities;
-using Domain.Models;
+using Application.Shared.Models;
+using Domain.Enums;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Core;
 

@@ -1,13 +1,19 @@
-﻿using CSharpFunctionalExtensions;
+﻿using Application.Contracts.Repositories;
+using Application.Shared.Models;
+using CSharpFunctionalExtensions;
+using Domain.DatabaseModels;
 using Domain.Entities;
-using Domain.Models;
+using Domain.Enums;
+using System.Threading.Tasks;
 
 namespace Infrastructure
 {
-    public class InitialDbDataSeed
+    public sealed class InitialDbDataSeed
 {
     private readonly MonkeyShelterDbContext _dbContext;
     private readonly Random _random;
+    private readonly IMonkeyRepository _monkeyRepository;
+    private readonly IAdmissionsRepository _admissionsRepository;
     
     private static readonly List<string> RandomNames = new List<string>
     {
@@ -17,62 +23,64 @@ namespace Infrastructure
 
     private static readonly List<MonkeySpecies> SpeciesList = Enum.GetValues(typeof(MonkeySpecies)).Cast<MonkeySpecies>().ToList();
 
-    public InitialDbDataSeed(MonkeyShelterDbContext dbContext)
+    public InitialDbDataSeed(MonkeyShelterDbContext dbContext, IMonkeyRepository monkeyRepository, IAdmissionsRepository admissionsRepository)
     {
         _dbContext = dbContext;
         _random = new Random();
+        _monkeyRepository = monkeyRepository;
+        _admissionsRepository = admissionsRepository;
     }
 
-public void Seed()
-{
-    if (_dbContext.Monkeys.Any())
-    {
-        return;
-    }
+      public async Task Seed()
+      {
+        if (_dbContext.Monkeys.Any()) return;
 
-    var monkeys = new List<Monkey>();
+        // Step 1: Seed shelter managers
+        var shelterManagers = Enumerable.Range(1, 9)
+            .Select(i => new ShelterManagerDbModel(GetRandomName()))
+            .ToList();
+        await _dbContext.ShelterManagers.AddRangeAsync(shelterManagers);
+        await _dbContext.SaveChangesAsync();
 
-    for (int i = 1; i <= 90; i++)
-    {
-        var monkeyResult = Monkey.CreateMonkey(new MonkeyEntryRequest 
-        { 
-            Name = GetRandomName(), 
-            Species = GetRandomSpecies(), 
-            Weight = GetRandomWeight() 
-        });
+        // Step 2: Seed shelters and assign managers
+        var shelters = shelterManagers
+            .Select(manager => new ShelterDbModel(manager.Id))
+            .ToList();
+        await _dbContext.Shelters.AddRangeAsync(shelters);
+        await _dbContext.SaveChangesAsync();
 
-        if (monkeyResult.IsFailure)
+        // Step 3: Seed monkeys with admissions
+        var monkeys = new List<MonkeyDbModel>();
+        var admissions = new List<AdmissionDbModel>();
+        var rng = new Random();
+
+        for (int i = 0; i < 90; i++)
         {
-            throw new ArgumentException($"Error creating monkey: {monkeyResult.Error}");
+            var shelter = shelters[rng.Next(shelters.Count)];
+            var monkey = new MonkeyDbModel(GetRandomSpecies(), GetRandomName(), GetRandomWeight(), null, shelter.Id);
+            monkeys.Add(monkey);
         }
 
-        monkeys.Add(monkeyResult.Value);
-    }
+        await _dbContext.AddRangeAsync(monkeys);
+        await _dbContext.SaveChangesAsync();
 
-    _dbContext.Monkeys.AddRange(monkeys);
-    _dbContext.SaveChanges();
-    var admissions = new List<Admission>();
-    foreach (var monkey in monkeys)
-    {
-        var admissionResult = Admission.CreateAdmission(new AdmissionRequest 
-        { 
-            MonkeyId = monkey.Id, 
-            AdmittanceDate = DateTime.Today.AddDays(-monkey.Id)
-        });
-
-        if (admissionResult.IsFailure)
+        foreach (var monkey in monkeys)
         {
-            throw new ArgumentException($"Error creating admission: {admissionResult.Error}");
+            var randomAdmissionDate = DateTime.UtcNow.AddDays(-rng.Next(0, 90));
+            var admission = new AdmissionDbModel(monkey.Id, randomAdmissionDate);
+            admissions.Add(admission);
         }
 
-        admissions.Add(admissionResult.Value);
-    }
+        await _dbContext.AddRangeAsync(admissions);
+        await _dbContext.SaveChangesAsync();
+      }
 
-    _dbContext.Admissions.AddRange(admissions);
-    _dbContext.SaveChanges();
-    }
+      private int GetRandomShelterId()
+        {
+            return _random.Next(1, 11);
+        }
 
-    private MonkeySpecies GetRandomSpecies()
+        private MonkeySpecies GetRandomSpecies()
     {
         return SpeciesList[_random.Next(SpeciesList.Count)];
     }

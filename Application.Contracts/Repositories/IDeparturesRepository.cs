@@ -1,4 +1,4 @@
-﻿namespace Infrastructure.Contracts
+﻿namespace Application.Contracts.Repositories
 {
     public interface IDeparturesRepository
     {

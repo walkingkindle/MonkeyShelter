@@ -1,9 +1,9 @@
 using Application.Contracts;
 using Application.Implementations;
+using Application.Shared.Models;
 using CSharpFunctionalExtensions;
 using Domain.Entities;
-using Domain.Models;
-using Infrastructure.Contracts;
+using Domain.Enums;
 using Moq;
 
 namespace MonkeyShelter.Test.Unit
@@ -18,9 +18,10 @@ namespace MonkeyShelter.Test.Unit
             {
                 Species = MonkeySpecies.Capuchin,
                 Name = "Bobo",
-                Weight = -3.2
+                Weight = -3.2,
+                ShelterId = 6,
             };
-            var monkeyResult = Monkey.CreateMonkey(Maybe.From(request));
+            var monkeyResult = Monkey.CreateMonkey(request.Name, request.Weight, request.Species,request.ShelterId);
 
             Assert.True(monkeyResult.IsFailure);
         }
@@ -34,9 +35,10 @@ namespace MonkeyShelter.Test.Unit
             {
                 Species = invalidSpecies,
                 Name = "Bobo",
-                Weight = -3.2
+                Weight = -3.2,
+                ShelterId = 6
             };
-            var monkeyResult = Monkey.CreateMonkey(Maybe.From(request));
+            var monkeyResult = Monkey.CreateMonkey(request.Name, request.Weight, request.Species, request.ShelterId);
 
             Assert.True(monkeyResult.IsFailure);
         }
@@ -48,9 +50,10 @@ namespace MonkeyShelter.Test.Unit
             {
                 Species = MonkeySpecies.Capuchin,
                 Name = "",
-                Weight = 3.2
+                Weight = 3.2,
+                ShelterId = 6
             };
-            var monkeyResult = Monkey.CreateMonkey(Maybe.From(request));
+            var monkeyResult = Monkey.CreateMonkey(request.Name, request.Weight, request.Species, request.ShelterId);
 
             Assert.True(monkeyResult.IsFailure);
         }

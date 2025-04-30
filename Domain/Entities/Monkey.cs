@@ -1,5 +1,5 @@
 ﻿using CSharpFunctionalExtensions;
-using Domain.Models;
+using Domain.Enums;
 
 namespace Domain.Entities
 {
@@ -15,23 +15,28 @@ namespace Domain.Entities
 
         public DateTime? LastUpdateTime { get; set; }
 
-        public static Result<Monkey> CreateMonkey(Maybe<MonkeyEntryRequest> request)
+        public int ShelterId { get; set; }
+
+        public static Result<Monkey> CreateMonkey(Maybe<string> monkeyName, Maybe<double> monkeyWeight, Maybe<MonkeySpecies> monkeySpecies, Maybe<int> shelterId)
         {
-            return request.ToResult("Monkey cannot be null")
-                .Ensure(monkey => !string.IsNullOrEmpty(monkey.Name), "Monkey must have a name")
-                .Ensure(monkey => monkey.Weight > 0, "Monkey must have a valid weight")
-                .Ensure(monkey => Enum.IsDefined(typeof(MonkeySpecies), monkey.Species), "Invalid monkey species")
-                .Ensure(monkey => monkey.Weight < 1000,"We can not accept monkeys that are over a 1000kg heavy")
-                .Map(monkey => new Monkey(species:monkey.Species, name: monkey.Name, weight: monkey.Weight));
+            return monkeyName.ToResult("Monkey cannot be null")
+                .Ensure(monkey => !string.IsNullOrEmpty(monkeyName.Value), "Monkey must have a name")
+                .Ensure(monkey => monkeyWeight.HasValue && monkeyWeight.Value > 0, "Monkey must have a valid weight")
+                .Ensure(monkey => monkeySpecies.HasValue && Enum.IsDefined(typeof(MonkeySpecies), monkeySpecies.Value), "Invalid monkey species")
+                .Ensure(monkey => monkeyWeight.Value < 1000, "We can not accept monkeys that are over a 1000kg heavy")
+                .Ensure(monkey => shelterId.HasValue && shelterId.Value >= 0,"Shelter Id must be valid")
+                .Map(monkey => new Monkey(species:monkeySpecies.Value, name: monkeyName.Value, weight:monkeyWeight.Value, shelterId:shelterId.Value));
         }
 
-        public Monkey(MonkeySpecies species, string name, double weight)
+        public Monkey(MonkeySpecies species, string name, double weight,int shelterId)
         {
             Species = species;
 
             Name = name;
 
             Weight = weight;
+
+            ShelterId = shelterId;
 
             LastUpdateTime = null;
         }

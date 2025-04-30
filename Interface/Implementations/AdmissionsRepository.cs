@@ -1,6 +1,8 @@
-﻿using Domain.Entities;
-using Domain.Models;
-using Infrastructure.Contracts;
+﻿using Application.Contracts.Repositories;
+using Application.Shared.Models;
+using Domain.DatabaseModels;
+using Domain.Entities;
+using Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Implementations
@@ -14,11 +16,19 @@ namespace Infrastructure.Implementations
             _monkeyShelterDbContext = monkeyShelterDbContext;
         }
 
-        public async Task AddAdmittance(Admission admission)
+        public async Task AddAdmittance(AdmissionDbModel admission)
         {
             _monkeyShelterDbContext.Admissions.Add(admission);
 
             await _monkeyShelterDbContext.SaveChangesAsync();
+        }
+
+        public async Task AddRangeAdmissions(List<AdmissionDbModel> Admissions)
+        {
+            _monkeyShelterDbContext.Admissions.AddRange(Admissions);
+
+            await _monkeyShelterDbContext.SaveChangesAsync();
+
         }
 
         public int GetMonkeysAmountBySpecies(MonkeySpecies species)

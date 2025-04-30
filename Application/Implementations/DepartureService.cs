@@ -1,7 +1,7 @@
 ﻿using Application.Contracts;
+using Application.Contracts.Repositories;
 using CSharpFunctionalExtensions;
-using Domain.Entities;
-using Infrastructure.Contracts;
+using Domain.Enums;
 
 namespace Application.Implementations
 {

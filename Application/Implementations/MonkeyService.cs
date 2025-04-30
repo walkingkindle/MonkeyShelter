@@ -1,10 +1,12 @@
 ﻿using Application.Contracts;
 using CSharpFunctionalExtensions;
 using Domain.Entities;
-using Domain.Models;
-using Infrastructure.Contracts;
 using Application.Extensions;
 using Microsoft.Extensions.Caching.Memory;
+using Domain.Enums;
+using Application.Contracts.Repositories;
+using Application.Shared.Models;
+using Domain.DatabaseModels;
 
 namespace Application.Implementations
 {
@@ -32,14 +34,25 @@ namespace Application.Implementations
                 return Result.Failure(requestResult.Error);
             }
 
-            var createResult = Monkey.CreateMonkey(request);
+            var requestValue = request.Value;
+            var createResult = Monkey.CreateMonkey(
+                monkeyName:requestValue.Name,
+                monkeyWeight:requestValue.Weight,
+                monkeySpecies:requestValue.Species,
+                shelterId:requestValue.ShelterId
+                );
 
             if (createResult.IsFailure)
             {
                 return Result.Failure(createResult.Error);
             }
 
-            var monkeyIdResult = await _monkeyRepository.AddMonkeyToShelter(createResult.Value);
+            MonkeyDbModel monkeyDbModel = new MonkeyDbModel(species:createResult.Value.Species,
+                name:createResult.Value.Name,
+                weight:createResult.Value.Weight,
+                lastUpdateTime:null,
+                shelterId:createResult.Value.ShelterId);
+            var monkeyIdResult = await _monkeyRepository.AddMonkeyToShelter(monkeyDbModel);
 
             if (monkeyIdResult.IsFailure)
             {
@@ -110,16 +123,17 @@ namespace Application.Implementations
             }
 
             var cacheKey = $"MonkeySpecies_{species.Value}";
-            if (_memoryCache.TryGetValue(cacheKey, out List<MonkeyReportResponse> cachedResult))
+            if (_memoryCache.TryGetValue(cacheKey, out List<MonkeyReportResponse>? cachedResult))
             {
-                return Result.Success(cachedResult);
+                 return Result.Success(cachedResult ?? new List<MonkeyReportResponse>());
+
             }
 
             var result = await _monkeyRepository.GetMonkeysBySpecies(species.Value);
 
             if (result.Any())
             {
-                _memoryCache.Set(cacheKey, result, TimeSpan.FromMinutes(10)); // Cache expires after 10 minutes (adjust as needed)
+                _memoryCache.Set(cacheKey, result, TimeSpan.FromMinutes(10));
             }
 
             return Result.Success(result);

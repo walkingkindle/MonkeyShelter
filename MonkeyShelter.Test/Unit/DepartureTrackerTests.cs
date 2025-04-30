@@ -1,7 +1,7 @@
 ﻿using Application.Contracts;
+using Application.Contracts.Repositories;
 using Application.Implementations;
-using Domain.Entities;
-using Infrastructure.Contracts;
+using Domain.Enums;
 using Moq;
 
 namespace MonkeyShelter.Test.Unit

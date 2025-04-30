@@ -1,5 +1,5 @@
 ﻿
-namespace Domain.Models
+namespace Application.Shared.Models
 {
     public class MonkeyCheckupResponse : MonkeyInfo
     {

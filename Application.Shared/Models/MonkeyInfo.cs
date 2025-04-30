@@ -1,6 +1,6 @@
-﻿using Domain.Entities;
+﻿using Domain.Enums;
 
-namespace Domain.Models
+namespace Application.Shared.Models
 {
     public abstract class MonkeyInfo
     {

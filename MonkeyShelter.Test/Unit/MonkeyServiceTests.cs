@@ -1,9 +1,11 @@
 ﻿using Application.Contracts;
+using Application.Contracts.Repositories;
 using Application.Implementations;
+using Application.Shared.Models;
 using CSharpFunctionalExtensions;
+using Domain.DatabaseModels;
 using Domain.Entities;
-using Domain.Models;
-using Infrastructure.Contracts;
+using Domain.Enums;
 using Microsoft.Extensions.Caching.Memory;
 using Moq;
 
@@ -35,7 +37,8 @@ namespace MonkeyShelter.Test.Unit
             {
                 Species = MonkeySpecies.Capuchin,
                 Name = "Bobo",
-                Weight = 12.5
+                Weight = 12.5,
+                ShelterId = 6
             };
             int newMonkeyId = 0;
 
@@ -43,17 +46,21 @@ namespace MonkeyShelter.Test.Unit
 
             var result = await _service.AddMonkey(request);
 
-            var monkey = Monkey.CreateMonkey(request);
-
+            var monkey = Monkey.CreateMonkey(request.Name, request.Weight, request.Species, request.ShelterId);
 
             Assert.True(monkey.IsSuccess);
 
             Assert.True(result.IsSuccess);
-            var monkeySaveResult = _monkeyRepository.Setup(repo => repo.AddMonkeyToShelter(monkey.Value))
+            var monkeySaveResult = _monkeyRepository.Setup(repo => repo.AddMonkeyToShelter(new MonkeyDbModel(
+                monkey.Value.Species,
+                monkey.Value.Name,
+                monkey.Value.Weight,
+                monkey.Value.LastUpdateTime,
+                monkey.Value.ShelterId)))
                 .Callback<Monkey>(m => newMonkeyId = m.Id)
                 .Returns(Task.FromResult(Result.Success(newMonkeyId)));
 
-            _monkeyRepository.Verify(repo => repo.AddMonkeyToShelter(It.Is<Monkey>(m =>
+            _monkeyRepository.Verify(repo => repo.AddMonkeyToShelter(It.Is<MonkeyDbModel>(m =>
              m.Name == request.Name &&
              m.Species == request.Species &&
              m.Weight == request.Weight)));
@@ -68,10 +75,11 @@ namespace MonkeyShelter.Test.Unit
         {
             Species = MonkeySpecies.Capuchin,
             Name = "Bobo",
-            Weight = 12.3
+            Weight = 12.3,
+            ShelterId = 6
         };
 
-        var monkey = Monkey.CreateMonkey(Maybe.From(request)).Value;
+        var monkey = Monkey.CreateMonkey(request.Name, request.Weight, request.Species, request.ShelterId).Value;
 
 
 
@@ -80,7 +88,7 @@ namespace MonkeyShelter.Test.Unit
 
            Maybe<int> admittedMonkeyId = -1;
 
-          _monkeyRepository.Setup(r => r.AddMonkeyToShelter(It.IsAny<Monkey>()))
+          _monkeyRepository.Setup(r => r.AddMonkeyToShelter(It.IsAny<MonkeyDbModel>()))
                             .ReturnsAsync(monkey.Id);
     
             _admissionTracker
@@ -95,7 +103,7 @@ namespace MonkeyShelter.Test.Unit
         Assert.True(result.IsSuccess);
 
         _admissionTracker.Verify(t => t.CanMonkeyBeAdmitted(), Times.Once);
-        _monkeyRepository.Verify(r => r.AddMonkeyToShelter(It.Is<Monkey>(m =>
+        _monkeyRepository.Verify(r => r.AddMonkeyToShelter(It.Is<MonkeyDbModel>(m =>
             m.Name == request.Name &&
             m.Species == request.Species &&
             m.Weight == request.Weight
@@ -111,9 +119,8 @@ namespace MonkeyShelter.Test.Unit
         {
             // Arrange
             var request = new MonkeyDepartureRequest { MonkeyId = 1 };
-            var monkey = Monkey.CreateMonkey(new MonkeyEntryRequest { Name = "Bobo", Species = MonkeySpecies.Capuchin, Weight = 22.2 }).Value;
-
-            _monkeyRepository.Setup(r => r.GetMonkeyById(request.MonkeyId))
+            var monkey = new MonkeyDbModel(MonkeySpecies.Gibbon, "Aleksa", 22, null, 6);
+                _monkeyRepository.Setup(r => r.GetMonkeyById(request.MonkeyId))
                              .ReturnsAsync(Result.Success(monkey));
 
             _departureService.Setup(s => s.CanMonkeyDepart(monkey.Species))
@@ -139,7 +146,7 @@ namespace MonkeyShelter.Test.Unit
             var request = new MonkeyDepartureRequest { MonkeyId = 1 };
 
             _monkeyRepository.Setup(r => r.GetMonkeyById(request.MonkeyId))
-                             .ReturnsAsync(Result.Failure<Monkey>("Monkey not found"));
+                             .ReturnsAsync(Result.Failure<MonkeyDbModel>("Monkey not found"));
 
             // Act
             var result = await _service.DepartMonkey(Maybe.From(request));
@@ -277,6 +284,7 @@ namespace MonkeyShelter.Test.Unit
             _monkeyRepository.Verify(r => r.UpdateMonkey(request), Times.Once);
         }
 
+        [Fact]
         public async Task UpdateMonkeyWeight_InvalidWeight_ReturnsFailure()
         {
             // Arrange

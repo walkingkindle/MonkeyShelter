@@ -1,6 +1,6 @@
 ﻿using Application.Contracts;
-using Domain.Models;
-using Infrastructure.Contracts;
+using Application.Contracts.Repositories;
+using Application.Shared.Models;
 
 namespace Application.Implementations
 {

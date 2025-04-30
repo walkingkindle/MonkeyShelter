@@ -1,5 +1,6 @@
-﻿using Domain.Entities;
-using Domain.Models;
+﻿using Application.Shared.Models;
+using CSharpFunctionalExtensions;
+using Domain.Entities;
 
 namespace MonkeyShelter.Test.Unit
 {
@@ -9,35 +10,21 @@ namespace MonkeyShelter.Test.Unit
 
         public void Create_Admission_Should_Succeeed()
         {
-            AdmissionRequest admissionRequest = new AdmissionRequest
-            {
-                AdmittanceDate = DateTime.Today,
-                MonkeyId = 52
-            };
-            Assert.True(Admission.CreateAdmission(admissionRequest).IsSuccess);
+            Result<Admission> admissionRequest = Admission.CreateAdmission(1, DateTime.Today);
+            
+             Assert.True(admissionRequest.IsSuccess);
         }
 
         [Fact]
         public void Create_Admission_Should_FailInvalid_Data_Id()
         {
-            AdmissionRequest admissionRequest = new AdmissionRequest
-            {
-                AdmittanceDate = DateTime.Today,
-                MonkeyId = -6
-            };
-            Assert.True(Admission.CreateAdmission(admissionRequest).IsFailure);
-            
+            Assert.True(Admission.CreateAdmission(-6,DateTime.Today).IsFailure);
         }
 
         [Fact]
         public void Create_Admission_Should_Fail_Invalid_Data_Date()
         {
-            AdmissionRequest admissionRequest = new AdmissionRequest
-            {
-                AdmittanceDate = DateTime.Today.AddDays(-30),
-                MonkeyId = 52
-            };
-            Assert.True(Admission.CreateAdmission(admissionRequest).IsSuccess);
+            Assert.True(Admission.CreateAdmission(2,DateTime.Today.AddDays(-5)).IsFailure);
         }
     }
 }

@@ -1,5 +1,4 @@
 ﻿using CSharpFunctionalExtensions;
-using Domain.Models;
 
 namespace Domain.Entities
 {
@@ -11,17 +10,16 @@ namespace Domain.Entities
 
         public DateTime MonkeyAdmittanceDate { get; set; }
 
-        public Monkey Monkey { get; set; }
-
         public DateTime MonkeyCheckupTime { get; set; }
 
 
-        public static Result<Admission> CreateAdmission(Maybe<AdmissionRequest> request)
+        public static Result<Admission> CreateAdmission(Maybe<int> monkeyId, Maybe<DateTime> admittanceDate)
         {
-            return request.ToResult("Admission cannot be null")
-                .Ensure(request => request.MonkeyId >= 0, "Admittance entry must have a valid monkey Id")
-                .Ensure(request => request.AdmittanceDate <= DateTime.Today, "Monkey admittance date must be valid")
-                .Map(request => new Admission(request.MonkeyId, request.AdmittanceDate));
+            return monkeyId.ToResult("Admission cannot be null")
+                .Ensure(request => request >= 0, "Admittance entry must have a valid monkey Id")
+                .Ensure(request => admittanceDate.HasValue, "Admittance date must not be null")
+                .Ensure(request => admittanceDate.Value <= DateTime.Today, "Monkey admittance date must be valid")
+                .Map(request => new Admission(monkeyId.Value,admittanceDate.Value));
         }
 
         private Admission(int monkeyId, DateTime monkeyAdmittanceDate)

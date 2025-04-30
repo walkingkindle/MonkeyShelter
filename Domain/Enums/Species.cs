@@ -1,6 +1,6 @@
 ﻿using System.Text.Json.Serialization;
 
-namespace Domain.Entities
+namespace Domain.Enums
 {
     [JsonConverter(typeof(JsonStringEnumConverter))]
     public enum MonkeySpecies
@@ -21,5 +21,4 @@ namespace Domain.Entities
         Gibbon,
         Langur
     }
-
 }

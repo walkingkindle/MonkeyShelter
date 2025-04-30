@@ -1,7 +1,7 @@
 ﻿using Application.Implementations;
+using Application.Shared.Models;
 using CSharpFunctionalExtensions;
-using Domain.Entities;
-using Domain.Models;
+using Domain.Enums;
 
 namespace Application.Contracts{
     public interface IMonkeyService

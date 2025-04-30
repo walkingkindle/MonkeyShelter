@@ -1,7 +1,7 @@
 ﻿using Application.Contracts;
+using Application.Contracts.Repositories;
 using Application.Implementations;
-using Domain.Models;
-using Infrastructure.Contracts;
+using Application.Shared.Models;
 using Moq;
 
 namespace MonkeyShelter.Test.Unit

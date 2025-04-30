@@ -6,11 +6,44 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Infrastructure.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialUpdate : Migration
+    public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.CreateTable(
+                name: "ShelterManagers",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    Name = table.Column<string>(type: "TEXT", nullable: false),
+                    ShelterId = table.Column<int>(type: "INTEGER", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ShelterManagers", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Shelters",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "INTEGER", nullable: false)
+                        .Annotation("Sqlite:Autoincrement", true),
+                    ShelterManagerId = table.Column<int>(type: "INTEGER", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Shelters", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Shelters_ShelterManagers_ShelterManagerId",
+                        column: x => x.ShelterManagerId,
+                        principalTable: "ShelterManagers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
             migrationBuilder.CreateTable(
                 name: "Monkeys",
                 columns: table => new
@@ -20,11 +53,18 @@ namespace Infrastructure.Migrations
                     Species = table.Column<int>(type: "INTEGER", nullable: false),
                     Name = table.Column<string>(type: "TEXT", nullable: false),
                     Weight = table.Column<double>(type: "REAL", nullable: false),
-                    LastUpdateTime = table.Column<DateTime>(type: "TEXT", nullable: true)
+                    LastUpdateTime = table.Column<DateTime>(type: "TEXT", nullable: true),
+                    ShelterId = table.Column<int>(type: "INTEGER", nullable: false),
+                    ShelterDbModelId = table.Column<int>(type: "INTEGER", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Monkeys", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Monkeys_Shelters_ShelterDbModelId",
+                        column: x => x.ShelterDbModelId,
+                        principalTable: "Shelters",
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -77,6 +117,17 @@ namespace Infrastructure.Migrations
                 name: "IX_Departures_MonkeyId",
                 table: "Departures",
                 column: "MonkeyId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Monkeys_ShelterDbModelId",
+                table: "Monkeys",
+                column: "ShelterDbModelId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Shelters_ShelterManagerId",
+                table: "Shelters",
+                column: "ShelterManagerId",
+                unique: true);
         }
 
         /// <inheritdoc />
@@ -90,6 +141,12 @@ namespace Infrastructure.Migrations
 
             migrationBuilder.DropTable(
                 name: "Monkeys");
+
+            migrationBuilder.DropTable(
+                name: "Shelters");
+
+            migrationBuilder.DropTable(
+                name: "ShelterManagers");
         }
     }
 }

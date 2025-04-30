@@ -1,12 +1,16 @@
-﻿using Application.Contracts;
+﻿using Application.Auth.Contracts;
+using Application.Auth.Implementations;
+using Application.Contracts;
 using Application.Implementations;
+using Application.Settings;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Application
 {
     public static class ApplicationServiceCollectionExtensions
     {
-        public static IServiceCollection AddApplicationServices(this IServiceCollection services)
+        public static IServiceCollection AddApplicationServices(this IServiceCollection services, IConfiguration configuration)
         {
 
             services.AddMemoryCache();
@@ -18,6 +22,14 @@ namespace Application
             services.AddTransient<ICheckupService, CheckupService>();
 
             services.AddTransient<IDepartureService, DepartureService>();
+
+            services.AddTransient<IShelterService, ShelterService>();
+
+            var jwtSettings = new JwtSettings();
+            services.Configure<JwtSettings>(configuration.GetSection("JwtSettings"));
+
+            services.AddScoped<IJwtService, JwtService>();
+
 
             return services;
         }

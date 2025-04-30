@@ -1,7 +1,9 @@
-﻿using CSharpFunctionalExtensions;
+﻿using Application.Contracts.Repositories;
+using Application.Shared.Models;
+using CSharpFunctionalExtensions;
+using Domain.DatabaseModels;
 using Domain.Entities;
-using Domain.Models;
-using Infrastructure.Contracts;
+using Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
@@ -19,26 +21,29 @@ namespace Infrastructure.Implementations
 
         }
 
-        public async Task<Result<int>> AddMonkeyToShelter(Monkey monkey)
+        public async Task<Result<int>> AddMonkeyToShelter(MonkeyDbModel monkey)
         {
-             _monkeyShelterDbContext.Monkeys.Add(monkey);
+           _monkeyShelterDbContext.Monkeys.Add(monkey);
 
             await CarefulSaveChanges();
             return Result.Success(monkey.Id);
 
         }
 
-        public async Task<Result<Monkey>> GetMonkeyById(Result<int> id)
+        public async Task AddRangeMonkeys(List<MonkeyDbModel> monkeys)
         {
-            if (id.IsFailure)
-            {
-                return Result.Failure<Monkey>(id.Error);
-            }
-            var monkey = await _monkeyShelterDbContext.Monkeys.FirstOrDefaultAsync(p => p.Id == id.Value);
+            _monkeyShelterDbContext.AddRange(monkeys);
+
+            await CarefulSaveChanges();
+        }
+
+        public async Task<Result<MonkeyDbModel>> GetMonkeyById(int monkeyId)
+        {
+            var monkey = await _monkeyShelterDbContext.Monkeys.FirstOrDefaultAsync(p => p.Id == monkeyId);
 
             if(monkey == null)
             {
-                return Result.Failure<Monkey>("Monkey with the specified Id could not be found");
+                return Result.Failure<MonkeyDbModel>("Monkey with the specified Id could not be found");
             }
 
             return Result.Success(monkey);
@@ -67,7 +72,7 @@ namespace Infrastructure.Implementations
                 .ToListAsync();
         }
 
-        public async Task RemoveMonkeyFromShelter(Monkey monkey)
+        public async Task RemoveMonkeyFromShelter(MonkeyDbModel monkey)
         {
             _monkeyShelterDbContext.Monkeys.Remove(monkey);
 

@@ -1,23 +1,23 @@
 ﻿using Application.Contracts;
+using Application.Contracts.Repositories;
 using Application.Implementations;
-using Domain.Entities;
-using Infrastructure.Contracts;
+using Infrastructure.Implementations;
 using Moq;
 
 namespace MonkeyShelter.Test.Unit
 {
     public class AdmissionsTrackerTests
     {
-        private readonly Mock<IAdmissionsRepository> _admissionsRepository;
+        private readonly Mock<AdmissionsRepository> _admissionsRepository;
 
-        private readonly Mock<IDeparturesRepository> _departuresRepository;
+        private readonly Mock<DeparturesRepository> _departuresRepository;
 
         private readonly IAdmissionTracker _tracker;
 
         public AdmissionsTrackerTests()
         {
-            _admissionsRepository = new Mock<IAdmissionsRepository>();
-            _departuresRepository = new Mock<IDeparturesRepository>();
+            _admissionsRepository = new Mock<AdmissionsRepository>();
+            _departuresRepository = new Mock<DeparturesRepository>();
             _tracker = new AdmissionsTracker(_admissionsRepository.Object, _departuresRepository.Object);
         }
 

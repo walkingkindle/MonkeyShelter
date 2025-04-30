@@ -1,5 +1,6 @@
-﻿using Domain.Entities;
-using Infrastructure.Contracts;
+﻿using Application.Contracts.Repositories;
+using Domain.DatabaseModels;
+using Domain.Entities;
 using System.Threading.Tasks;
 
 namespace Infrastructure.Implementations
@@ -19,7 +20,7 @@ namespace Infrastructure.Implementations
 
         public async Task Depart(int monkeyId)
         {
-             Departure departure = new Departure(monkeyId);
+             DepartureDbModel departure = new DepartureDbModel(monkeyId, DateTime.Today);
 
             _dbContext.Departures.Add(departure);
 

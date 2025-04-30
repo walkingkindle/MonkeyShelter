@@ -6,6 +6,10 @@ namespace Domain.Models
         public int Id { get; set; }
         public string Name { get; set; }
 
+        public double Weight { get; set; }
+
         public MonkeySpecies Species { get; set; }
+
+        public DateTime? LastEditDate { get; set; }
     }
 }

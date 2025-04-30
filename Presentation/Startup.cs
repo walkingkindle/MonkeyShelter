@@ -18,6 +18,17 @@ namespace Presentation
             services.AddEndpointsApiExplorer();
             services.AddSwaggerGen();
 
+             services.AddCors(options =>
+            {
+                options.AddPolicy("AllowSpecificOrigin", builder =>
+                {
+                    builder.WithOrigins("http://localhost:4200")  // Frontend URL
+                           .AllowAnyMethod()
+                           .AllowAnyHeader()
+                           .AllowCredentials();
+                });
+            });
+
             services.AddInfrastructureServices("Data Source = monkeys.db");
 
             services.AddApplicationServices();
@@ -32,6 +43,7 @@ namespace Presentation
                 app.UseSwaggerUI();
             }
 
+            app.UseCors("AllowSpecificOrigin");
             app.UseHttpsRedirection();
             app.UseRouting();
             app.UseAuthentication();

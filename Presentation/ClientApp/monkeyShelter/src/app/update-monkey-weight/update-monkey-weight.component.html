@@ -1,0 +1,17 @@
+<div class="container mt-4">
+  <h2>Update Monkey Weight</h2>
+  <form [formGroup]="monkeyForm" (ngSubmit)="onSubmit()">
+    <div class="mb-3">
+      <label class="form-label">Id</label>
+      <input type="number" class="form-control" formControlName="id">
+    </div>
+    <div class="mb-3">
+      <label class="form-label">New Weight (kg)</label>
+      <input type="number" class="form-control" formControlName="weight">
+    </div>
+
+    <button type="submit" class="btn btn-primary" [disabled]="monkeyForm.invalid">
+      Submit
+    </button>
+  </form>
+</div>

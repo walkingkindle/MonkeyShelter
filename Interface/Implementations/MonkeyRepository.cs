@@ -47,13 +47,15 @@ namespace Infrastructure.Implementations
 
         public async Task<List<MonkeyReportResponse>> GetMonkeysByDate(DateTime dateFrom, DateTime dateTo)
         {
-            return await _monkeyShelterDbContext.Admissions.Include(d => d.Monkey)
+            return await _monkeyShelterDbContext.Admissions.Include(o => o.Monkey)
                 .Where(p => p.MonkeyAdmittanceDate >= dateFrom && p.MonkeyAdmittanceDate <= dateTo)
                 .Select(o => new MonkeyReportResponse
                 {
                     Name = o.Monkey.Name,
+                    Weight = o.Monkey.Weight,
                     Species = o.Monkey.Species,
-                    Id = o.MonkeyId
+                    Id = o.Monkey.Id,
+                    LastEditDate = o.Monkey.LastUpdateTime
                 })
                 .ToListAsync();
         }
@@ -61,7 +63,7 @@ namespace Infrastructure.Implementations
         public async Task<List<MonkeyReportResponse>> GetMonkeysBySpecies(MonkeySpecies species)
         {
             return await _monkeyShelterDbContext.Monkeys.Where(p => p.Species == species)
-                .Select(p => new MonkeyReportResponse { Name = p.Name, Species = p.Species })
+                .Select(p => new MonkeyReportResponse { Id = p.Id, Name = p.Name, Species = p.Species, LastEditDate = p.LastUpdateTime })
                 .ToListAsync();
         }
 

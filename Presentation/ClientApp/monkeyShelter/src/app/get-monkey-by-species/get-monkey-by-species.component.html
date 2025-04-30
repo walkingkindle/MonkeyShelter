@@ -1,3 +1,24 @@
-<button type="submit" class="btn btn-primary" onsubmit="onsubmit()">
-      Submit
-</button>
+<h2>Get Monkey Species</h2>
+
+<form [formGroup]="getMonkeysBySpeciesForm" (ngSubmit)="onSubmit()">
+  <div class="mb-3">
+    <label class="form-label">Species</label>
+    <select class="form-control" formControlName="species">
+      <option *ngFor="let species of monkeySpecies" [value]="species">{{ species }}</option>
+    </select>
+  </div>
+
+  <button type="submit" class="btn btn-primary" [disabled]="getMonkeysBySpeciesForm.invalid">
+    Submit
+  </button>
+</form>
+
+<app-monkey-report-table
+  *ngIf="monkeyData.length > 0"
+  [data]="monkeyData"
+  [columns]="[
+    { field: 'id', header: 'ID' },
+    { field: 'name', header: 'Name' },
+    { field: 'species', header: 'Species' }
+  ]">
+</app-monkey-report-table>

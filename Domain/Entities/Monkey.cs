@@ -21,6 +21,7 @@ namespace Domain.Entities
                 .Ensure(monkey => !string.IsNullOrEmpty(monkey.Name), "Monkey must have a name")
                 .Ensure(monkey => monkey.Weight > 0, "Monkey must have a valid weight")
                 .Ensure(monkey => Enum.IsDefined(typeof(MonkeySpecies), monkey.Species), "Invalid monkey species")
+                .Ensure(monkey => monkey.Weight < 1000,"We can not accept monkeys that are over a 1000kg heavy")
                 .Map(monkey => new Monkey(species:monkey.Species, name: monkey.Name, weight: monkey.Weight));
         }
 

@@ -82,16 +82,18 @@ namespace Application.Implementations
                 return Result.Failure("We cannot depart the monkey at this time.");
             }
 
-            await _monkeyRepository.RemoveMonkeyFromShelter(monkeyResult.Value);
-
-            InvalidateCacheForSpecies(monkeyResult.Value.Species);
-
             var departureResult = await _departureService.Depart(request.Value.MonkeyId);
 
             if (departureResult.IsFailure)
             {
                 return Result.Failure("Failed writing the departure data");
             }
+
+            await _monkeyRepository.RemoveMonkeyFromShelter(monkeyResult.Value);
+
+            InvalidateCacheForSpecies(monkeyResult.Value.Species);
+
+
 
             return Result.Success();
            

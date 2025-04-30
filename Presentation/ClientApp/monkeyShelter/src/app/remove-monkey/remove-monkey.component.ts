@@ -2,6 +2,7 @@ import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MonkeyService } from '../services/monkey.service';
 import { MonkeyDepartureRequest } from '../models/MonkeyDepartureRequest';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-remove-monkey',
@@ -23,15 +24,42 @@ removeMonkeyForm:FormGroup
     if (this.removeMonkeyForm.valid) {
       const request :MonkeyDepartureRequest = {monkeyId:this.removeMonkeyForm.get('id')?.value};
       console.log(request)
-      this.monkeyService.departMonkeyFromShelter(request).subscribe({
+      this.monkeyService.departMonkeyFromShelter(request.monkeyId).subscribe({
         next: (response) => {
           console.log('Submitted:', response);
-          // Handle successful submission (e.g., show a message, reset form)
-        },
-        error: (err) => {
-          console.error('Error:', err);
-          // Handle error (e.g., show an error message)
-        }
+          Swal.fire({
+          icon: 'success',
+          title: 'Monkey Deleted',
+          text: 'The monkey has been sucessfully deleted.',
+        });
+      },
+    error: (err) => {
+  console.error('Full error response:', err);
+
+  let errorMessage = 'An unexpected error occurred.';
+
+  if (err.error) {
+    if (typeof err.error === 'string') {
+      errorMessage = err.error;
+
+    } else if (err.error.message) {
+      errorMessage = err.error.message;
+
+    } else {
+      try {
+        errorMessage = JSON.stringify(err.error);
+      } catch {
+        errorMessage = 'Error occurred but could not parse details.';
+      }
+    }
+  }
+
+  Swal.fire({
+    icon: 'error',
+    title: 'Creation Failed',
+    text: errorMessage,
+  });
+}
       })
     }
   }

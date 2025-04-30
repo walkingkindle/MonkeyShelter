@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc.Core;
 namespace Presentation.Controllers
 {
     [ApiController]
-    [Route("/api/[controller]")]
+    [Route("/api/reports")]
     public class ReportsController : ControllerBase
     {
         private readonly IMonkeyService _monkeyService;
@@ -18,7 +18,7 @@ namespace Presentation.Controllers
             _monkeyService = monkeyService;
         }
 
-        [HttpGet("/reports/monkeys-per-species")]
+        [HttpGet("monkeys-per-species")]
         public async Task<ActionResult<List<MonkeyReportResponse>>> GetMonkeyBySpecies(MonkeySpecies species)
         {
             var result = await _monkeyService.GetMonkeyBySpecies(species);
@@ -31,8 +31,8 @@ namespace Presentation.Controllers
             return BadRequest(result.Error);
         }
 
-        [HttpGet("/reports/arrivals-per-species")]
-        public async Task<ActionResult<List<MonkeyInfo>>> GetMonkeysByArrivalDate(DateTime dateFrom, DateTime dateTo)
+        [HttpGet("arrivals-per-species")]
+        public async Task<ActionResult<List<MonkeyReportResponse>>> GetMonkeysByArrivalDate(DateTime dateFrom, DateTime dateTo)
         {
             var result = await _monkeyService.GetMonkeysByDate(new MonkeyDateRequest { DateFrom = dateFrom, DateTo = dateTo });
 

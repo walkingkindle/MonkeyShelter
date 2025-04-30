@@ -7,7 +7,7 @@ using Domain.Entities;
 namespace Presentation.Controllers
 {
     [ApiController]
-    [Route("/api/[controller]")]
+    [Route("/api/monkeys")]
     public class MonkeyShelterController : ControllerBase
     {
         private readonly IMonkeyService _monkeyService;
@@ -18,7 +18,7 @@ namespace Presentation.Controllers
             _checkupService = checkupService;
         }
 
-        [HttpPost("/monkeys")]
+        [HttpPost("")]
         public async Task<IActionResult> AdmitMonkeyToShelter(MonkeyEntryRequest request)
         {
             var result = await _monkeyService.AddMonkey(request);
@@ -28,9 +28,11 @@ namespace Presentation.Controllers
             return result.ToActionResult();
         }
 
-        [HttpDelete("/monkeys/{id}")]
-        public async Task<IActionResult> DepartMonkeyFromShelter(MonkeyDepartureRequest request)
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DepartMonkeyFromShelter(int id)
         {
+            var request = new MonkeyDepartureRequest { MonkeyId = id };
+
             var result = await _monkeyService.DepartMonkey(request);
 
             HttpContext.Items["Result"] = result;
@@ -38,7 +40,7 @@ namespace Presentation.Controllers
             return result.ToActionResult();
         }
 
-        [HttpPatch("/monkeys/{id}/weight")]
+        [HttpPatch("weight/{id}")]
         public async Task<IActionResult> UpdateMonkeyWeight(MonkeyWeightRequest request)
         {
             var result = await _monkeyService.UpdateMonkeyWeight(request);
@@ -48,7 +50,7 @@ namespace Presentation.Controllers
             return result.ToActionResult();
         }
 
-        [HttpGet("/monkeys/{id}/vet-check")]
+        [HttpGet("vet-checks")]
         public async Task<IActionResult> CheckForVetCheckup()
         {
             var result = await _checkupService.RetreiveMonkeysWithUpcomingVeteranaryCheckup();

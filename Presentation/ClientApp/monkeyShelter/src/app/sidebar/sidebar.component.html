@@ -5,8 +5,9 @@
         <div class="list-group list-group-flush">
             <a class="list-group-item list-group-item-action list-group-item-light p-3 nav link" [routerLink]="['/add-monkey']">Add Monkey</a>
             <a class="list-group-item list-group-item-action list-group-item-light p-3 nav link" [routerLink]="['/remove-monkey']">RemoveMonkey</a>
-            <a class="list-group-item list-group-item-action list-group-item-light p-3" href="#!">GetMonkeyBySpecies</a>
-            <a class="list-group-item list-group-item-action list-group-item-light p-3" href="#!">GetMonkeyByDateRange</a>
-            <a class="list-group-item list-group-item-action list-group-item-light p-3" href="#!">GetMonkeyCheckupInfo</a>
+            <a class="list-group-item list-group-item-action list-group-item-light p-3 nav link" [routerLink]="['/monkeys-species']">GetMonkeyBySpecies</a>
+            <a class="list-group-item list-group-item-action list-group-item-light p-3" [routerLink]="['/monkeys-date']">GetMonkeyByDateRange</a>
+            <a class="list-group-item list-group-item-action list-group-item-light p-3" [routerLink]="['/monkey-checkup-info']">GetMonkeyCheckupInfo</a>
+            <a class="list-group-item list-group-item-action list-group-item-light p-3" [routerLink]="['/monkey-weight']">Update Monkey Weight</a>
         </div>
     </div>

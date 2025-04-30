@@ -1,0 +1,25 @@
+    <h2>Get Monkey By Date</h2>
+  <form [formGroup]="getMonkeysByDateForm" (ngSubmit)="onSubmit()">
+    <div class="mb-3">
+      <label class="form-label">Date From</label>
+      <input type="date" class="form-control" formControlName="dateFrom">
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label">Date To</label>
+       <input type="date" class="form-control" formControlName="dateTo">
+    </div>
+
+    <button type="submit" class="btn btn-primary" [disabled]="getMonkeysByDateForm.invalid">
+      Submit
+    </button>
+
+
+</form>
+
+<app-monkey-report-table
+  *ngIf="monkeyData.length > 0"
+  [data]="monkeyData"
+  [columns]="columns">
+</app-monkey-report-table>
+

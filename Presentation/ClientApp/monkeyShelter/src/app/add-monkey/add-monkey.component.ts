@@ -1,10 +1,12 @@
 import { CommonModule } from '@angular/common';
 import { Component } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormBuilder, FormGroup, FormsModule, Validators } from '@angular/forms';
 import { ReactiveFormsModule } from '@angular/forms';
 import { MonkeySpecies } from '../enums/species';
 import { MonkeyService } from '../services/monkey.service';
 import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
+import { MonkeyEntryRequest } from '../models/MonkeyEntryRequest';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-monkey-form',
@@ -14,7 +16,6 @@ import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http'
 })
 export class MonkeyFormComponent {
   monkeyForm: FormGroup;
-   // Inject the service
   monkeySpeciesList = Object.values(MonkeySpecies)
     constructor(private fb: FormBuilder,private monkeyService: MonkeyService) {
       this.monkeyForm = this.fb.group({
@@ -23,25 +24,60 @@ export class MonkeyFormComponent {
         weight: [0, [Validators.required, Validators.min(0.1)]],
       });
     }
-    onSubmit(): void {
-    if (this.monkeyForm.valid) {
-      const request = this.monkeyForm.value;
-      this.monkeyService.admitMonkeyToShelter(request).subscribe({
+    successMessage: string | null = null;
+    errorMessage: string | null = null;
+
+onSubmit(): void {
+  this.successMessage = null;
+  this.errorMessage = null;
+
+  if (this.monkeyForm.valid) {
+    const formValue = this.monkeyForm.value;
+    const request: MonkeyEntryRequest = {
+      name: formValue.name,
+      species: formValue.species,  // Ensure species is an integer
+      weight: formValue.weight,
+    };
+    this.monkeyService.admitMonkeyToShelter(request).subscribe({
         next: (response) => {
-          console.log('Submitted:', response);
-          // Handle successful submission (e.g., show a message, reset form)
-        },
-        error: (err) => {
-          console.error('Error:', err);
-          // Handle error (e.g., show an error message)
-        }
-      });
+        console.log('Submitted:', response);
+        Swal.fire({
+          icon: 'success',
+          title: 'Monkey created',
+          text: 'Monkey entry has been sucessfully submitted!',
+        });
+      },
+    error: (err) => {
+  console.error('Full error response:', err);
+
+  let errorMessage = 'An unexpected error occurred.';
+
+  if (err.error) {
+    if (typeof err.error === 'string') {
+      errorMessage = err.error;
+
+    } else if (err.error.message) {
+      errorMessage = err.error.message;
+
     } else {
-      console.error('Form is invalid');
+      try {
+        errorMessage = JSON.stringify(err.error);
+      } catch {
+        errorMessage = 'Error occurred but could not parse details.';
+      }
     }
   }
 
-  ngOnInit(){
-    console.log("Component loaded.")
+  Swal.fire({
+    icon: 'error',
+    title: 'Creation Failed',
+    text: errorMessage,
+  });
+}
+    });
+  } else {
+    this.errorMessage = 'Form is invalid. Please check the inputs.';
   }
+}
+
   }

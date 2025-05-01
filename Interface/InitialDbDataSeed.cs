@@ -66,7 +66,7 @@ namespace Infrastructure
 
         foreach (var monkey in monkeys)
         {
-            var randomAdmissionDate = DateTime.UtcNow.AddDays(-rng.Next(0, 90));
+            var randomAdmissionDate = DateTime.UtcNow.AddDays(-GetRandomInt());
             var admission = new AdmissionDbModel(monkey.Id, randomAdmissionDate);
             admissions.Add(admission);
         }
@@ -75,14 +75,14 @@ namespace Infrastructure
         await _dbContext.SaveChangesAsync();
       }
 
-      private int GetRandomShelterId()
-        {
+       private int GetRandomInt()
+       {
             return _random.Next(1, 11);
-        }
+       }
 
-        private MonkeySpecies GetRandomSpecies()
+    private MonkeySpecies GetRandomSpecies()
     {
-        return SpeciesList[_random.Next(SpeciesList.Count)];
+    return SpeciesList[_random.Next(SpeciesList.Count)];
     }
 
     private string GetRandomName()
@@ -92,7 +92,7 @@ namespace Infrastructure
 
     private double GetRandomWeight()
     {
-        return _random.NextDouble() * (50 - 5) + 5;
+        return Math.Round(_random.NextDouble() * (50 - 5) + 5);
     }
 }
 

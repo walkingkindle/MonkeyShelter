@@ -23,7 +23,7 @@ export class GetMonkeyCheckupInfoComponent {
   onSubmit(): void {
     this.monkeyService.getMonkeysCheckup().subscribe({
       next: (response) => {
-        this.monkeys = [response];
+        this.monkeys = response;
       },
       error: (err) => {
         console.error('Error:', err);

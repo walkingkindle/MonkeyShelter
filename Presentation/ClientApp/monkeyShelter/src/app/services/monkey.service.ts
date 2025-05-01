@@ -13,8 +13,12 @@ import { MonkeyReportResponse } from '../models/MonkeyReportResponse';
   providedIn: 'root'
 })
 export class MonkeyService {
-  getMonkeysCheckup(): Observable<MonkeyReportResponse> {
-    return this.http.get<MonkeyReportResponse>(this.monkeysApiUrl);
+    private monkeysApiUrl = 'https://localhost:7008/api/monkeys';
+
+  private reportsApiUrl = 'https://localhost:7008/api/reports';
+
+  getMonkeysCheckup(): Observable<MonkeyReportResponse[]> {
+    return this.http.get<MonkeyReportResponse[]>(this.monkeysApiUrl);
   }
 
 updateMonkeyWeight(request: MonkeyWeightRequest): Observable<any> {
@@ -41,9 +45,7 @@ updateMonkeyWeight(request: MonkeyWeightRequest): Observable<any> {
     return this.http.get(this.reportsApiUrl + '/arrivals-per-date', {params});
   }
 
-  private monkeysApiUrl = 'https://localhost:7008/api/monkeys'; // Your API endpoint
 
-  private reportsApiUrl = 'https://localhost:7008/api/reports';
 
   constructor(private http: HttpClient) {}
 

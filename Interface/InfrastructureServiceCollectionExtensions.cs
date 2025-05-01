@@ -25,6 +25,8 @@ namespace Infrastructure
 
             services.AddScoped<InitialDbDataSeed>();
 
+            services.AddTransient<IDbHelper, DbHelper>();
+
 
 
 

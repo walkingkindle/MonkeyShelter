@@ -13,8 +13,6 @@ namespace Application.Contracts.Repositories
 
         int GetMonkeysAmountBySpecies(MonkeySpecies species);
 
-        Task<List<MonkeyCheckupResponse>> GetMonkeysByCheckupDate(DateTime dateFrom, DateTime dateTo);
-
         Task AddRangeAdmissions(List<AdmissionDbModel> admissions);
 
     }

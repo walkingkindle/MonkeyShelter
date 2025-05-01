@@ -19,10 +19,15 @@ namespace Presentation.Controllers
             _monkeyService = monkeyService;
         }
 
+        /// <summary>
+        /// Gets the number of monkeys per species.
+        /// </summary>
+        /// <param name="species">The monkey species to filter by.</param>
+        /// <returns>A list of monkey report entries grouped by species.</returns>
         [HttpGet("monkeys-per-species")]
-        public async Task<ActionResult<List<MonkeyReportResponse>>> GetMonkeyBySpecies(MonkeySpecies species)
-        {
-            var result = await _monkeyService.GetMonkeyBySpecies(species);
+        public async Task<ActionResult<List<MonkeyReportResponse>>> GetMonkeyBySpecies(MonkeySpecies species) { 
+
+        var result = await _monkeyService.GetMonkeyBySpecies(species);
 
             if (result.IsSuccess)
             {
@@ -32,7 +37,15 @@ namespace Presentation.Controllers
             return BadRequest(result.Error);
         }
 
-        [HttpGet("arrivals-per-species")]
+
+        /// <summary>
+        /// Gets monkey arrival counts between two dates.
+        /// </summary>
+        /// <param name="dateFrom">Start date.</param>
+        /// <param name="dateTo">End date.</param>
+        /// <returns>A list of monkey report entries grouped by arrival date.</returns>
+
+        [HttpGet("arrivals-per-date")]
         public async Task<ActionResult<List<MonkeyReportResponse>>> GetMonkeysByArrivalDate(DateTime dateFrom, DateTime dateTo)
         {
             var result = await _monkeyService.GetMonkeysByDate(new MonkeyDateRequest { DateFrom = dateFrom, DateTo = dateTo });

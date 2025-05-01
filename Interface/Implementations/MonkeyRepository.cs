@@ -60,8 +60,7 @@ namespace Infrastructure.Implementations
                     Name = o.Monkey.Name,
                     Weight = o.Monkey.Weight,
                     Species = o.Monkey.Species,
-                    Id = o.Monkey.Id,
-                    LastEditDate = o.Monkey.LastUpdateTime
+                    Id = o.Monkey.Id
                 })
                 .ToListAsync();
         }

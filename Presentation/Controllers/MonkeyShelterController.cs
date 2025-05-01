@@ -9,21 +9,31 @@ using Application.Contracts.Auth;
 
 namespace Presentation.Controllers
 {
+    /// <summary>
+    /// Controller for managing monkey admissions, departures, and updates in the shelter.
+    /// </summary>
     [ApiController]
     [Route("/api/monkeys")]
     public class MonkeyShelterController : ControllerBase
     {
         private readonly IMonkeyService _monkeyService;
-        private readonly ICheckupService _checkupService;
         private readonly IShelterAuthorizationService _shelterAuthorizationService;
-        public MonkeyShelterController(IMonkeyService monkeyService, ICheckupService checkupService,
+        public MonkeyShelterController(IMonkeyService monkeyService,
             IShelterAuthorizationService shelterAuthorizationService)
         {
             _monkeyService = monkeyService;
-            _checkupService = checkupService;
             _shelterAuthorizationService = shelterAuthorizationService;
         }
 
+        /// <summary>
+        /// Admits a new monkey to the shelter.
+        /// </summary>
+        /// <remarks>
+        /// Requires an authenticated Shelter Manager with a valid JWT containing a <c>ShelterId</c> claim.
+        /// The shelter must own the monkey to perform this action.
+        /// </remarks>
+        /// <param name="request">Details about the monkey to be admitted.</param>
+        /// <returns>The admitted monkey's details if successful.</returns>
         [Authorize]
         [HttpPost("")]
         public async Task<ActionResult<Monkey>> AdmitMonkeyToShelter(MonkeyEntryRequest request)
@@ -44,6 +54,15 @@ namespace Presentation.Controllers
             return Ok(result.Value);
         }
 
+        /// <summary>
+        /// Removes a monkey from the shelter by ID.
+        /// </summary>
+        /// <remarks>
+        /// Requires an authenticated Shelter Manager with a valid JWT containing a <c>ShelterId</c> claim.
+        /// The shelter must own the monkey to perform this action.
+        /// </remarks>
+        /// <param name="id">The ID of the monkey to remove.</param>
+        /// <returns>204 No Content if successful; 403 or 400 otherwise.</returns>
         [Authorize]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DepartMonkeyFromShelter(int id)
@@ -67,9 +86,18 @@ namespace Presentation.Controllers
             return result.ToActionResult();
         }
 
+        /// <summary>
+        /// Updates a monkey's weight.
+        /// </summary>
+        /// <remarks>
+        /// Requires an authenticated Shelter Manager with a valid JWT containing a <c>ShelterId</c> claim.
+        /// The shelter must own the monkey to perform this action.
+        /// </remarks>
+        /// <param name="request">The monkey ID and the new weight value.</param>
+        /// <returns>200 OK if updated; 403 if unauthorized.</returns>
         [Authorize]
-        [HttpPatch("weight/{id}")]
-        public async Task<IActionResult> UpdateMonkeyWeight(MonkeyWeightRequest request)
+        [HttpPatch("{id}")]
+        public async Task<IActionResult> UpdateMonkeyWeight([FromBody]MonkeyWeightRequest request)
         {
             var shelterIdClaim = User.FindFirst("ShelterId");
 
@@ -88,15 +116,27 @@ namespace Presentation.Controllers
             return result.ToActionResult();
         }
 
-        [HttpGet("vet-checks")]
-        public async Task<IActionResult> CheckForVetCheckup()
-        {
-            var result = await _checkupService.RetreiveMonkeysWithUpcomingVeteranaryCheckup();
 
-            return Ok(new
+        /// <summary>
+        /// Retrieves all monkeys admitted in the past 3 months.
+        /// </summary>
+        /// <returns>A list of monkey report entries.</returns>
+        [HttpGet("")]
+        public async Task<ActionResult<List<MonkeyReportResponse>>> GetAllMonkeys()
+        {
+            var result = await _monkeyService.GetMonkeysByDate(new MonkeyDateRequest
             {
-                upcomingCheckups = result.ScheduledCheckups,
+                DateFrom = DateTime.Today.AddMonths(-3),
+                DateTo = DateTime.Today
             });
+
+            if (result.IsFailure)
+            {
+                return BadRequest(result.Error);
+
+            }
+
+            return result.Value;
 
         }
 

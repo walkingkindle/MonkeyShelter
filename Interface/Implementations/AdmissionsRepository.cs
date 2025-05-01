@@ -37,11 +37,17 @@ namespace Infrastructure.Implementations
             return _monkeyShelterDbContext.Monkeys.Where(p => p.Species == species).Count();
         }
 
-        public async Task<List<MonkeyCheckupResponse>> GetMonkeysByCheckupDate(DateTime dateFrom, DateTime dateTo)
+        public async Task<List<MonkeyInfo>> GetMonkeysByCheckupDate(DateTime dateFrom, DateTime dateTo)
         {
             return await _monkeyShelterDbContext.Admissions
                 .Where(p => p.MonkeyCheckupTime >= dateFrom && p.MonkeyCheckupTime <= dateTo)
-                .Select(z => new MonkeyCheckupResponse { Id = z.MonkeyId, Name = z.Monkey.Name, CheckupTime = z.MonkeyCheckupTime})
+                .Select(z => new MonkeyInfo { 
+                    Id = z.MonkeyId,
+                    Name = z.Monkey.Name,
+                    Weight = z.Monkey.Weight, 
+                    Species = z.Monkey.Species,
+                    CheckupTime = z.MonkeyCheckupTime
+                })
                 .ToListAsync();
         }
 

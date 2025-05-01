@@ -20,8 +20,6 @@ namespace Application
 
             services.AddTransient<IMonkeyService, MonkeyService>();
 
-            services.AddTransient<ICheckupService, CheckupService>();
-
             services.AddTransient<IDepartureService, DepartureService>();
 
             services.AddTransient<IShelterService, ShelterService>();

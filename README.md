@@ -91,8 +91,12 @@ MonkeyShelter/
 │
 ├── Presentation/           # ASP.NET Core Web API
 ├── Presentation/ClientApp/     # Angular frontend
-├── Domain/                      # Domain entities and interfaces
+├── Domain/                      # Domain entities
+├── Application.Contracts/       # Interfaces
+├── Application.Shared/          # Shared modules used across other projects
 ├── Application/                 # Application logic (services, DTOs)
 ├── Infrastructure/              # EF Core DbContext and migrations
 └── README.md
+└── ArchitecturalDiagram.pdf
+└── Technical-document.pdf
 ```

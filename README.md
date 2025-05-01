@@ -11,7 +11,7 @@ Make sure you have the following installed:
 - [.NET 8 SDK](https://dotnet.microsoft.com/en-us/download/dotnet/8.0)
 - [Node.js (LTS)](https://nodejs.org/en/)
 - [Angular CLI](https://angular.io/cli) (`npm install -g @angular/cli`)
-- [SQL Server](https://www.microsoft.com/en-us/sql-server) or another configured database (e.g., SQLite)
+- [SQL Lite](https://www.microsoft.com/en-us/sql-server)
 
 ---
 
@@ -78,7 +78,6 @@ dotnet test
 
 ## 🛠️ Common Troubleshooting
 
-- ❗**CORS Errors**: Ensure CORS is enabled in the backend (in `Program.cs`).
 - 🧱 **Migration Errors**: Try running dotnet database migrate if Migration errors occur.
 - 🌐 **HTTPS Issues**: Make sure Angular uses the correct protocol (HTTPS or HTTP) to match the backend.
 

@@ -12,6 +12,6 @@ namespace Application.Shared.Models
 
         public MonkeySpecies Species { get; set; }
 
-        public DateTime? LastEditDate { get; set; }
+        public DateTime? CheckupTime { get; set; }
     }
 }

@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core';
 import { catchError, Observable, of, throwError } from 'rxjs';
 import { MonkeyEntryRequest } from '../models/MonkeyEntryRequest';
-import { HttpClient, HttpErrorResponse, HttpParams } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, HttpHeaders, HttpParams } from '@angular/common/http';
 import { MonkeyDepartureRequest } from '../models/MonkeyDepartureRequest';
 import { MonkeyDateRequest } from '../models/MonkeyDateRequest';
 import {MonkeyWeightRequest} from '../models/MonkeyWeightRequest'
@@ -13,13 +13,20 @@ import { MonkeyReportResponse } from '../models/MonkeyReportResponse';
   providedIn: 'root'
 })
 export class MonkeyService {
-  getMonkeysCheckup(): Observable<MonkeyVetCheckResponse> {
-    return this.http.get<MonkeyVetCheckResponse>(this.monkeysApiUrl + '/vet-checks');
+  getMonkeysCheckup(): Observable<MonkeyReportResponse> {
+    return this.http.get<MonkeyReportResponse>(this.monkeysApiUrl);
   }
 
-  updateMonkeyWeight(request: MonkeyWeightRequest): Observable<any> {
-    return this.http.patch(this.monkeysApiUrl + '/weight/' + request.monkeyId, request);
-  }
+updateMonkeyWeight(request: MonkeyWeightRequest): Observable<any> {
+  const token = localStorage.getItem('token');
+  const headers = new HttpHeaders({
+    Authorization: `Bearer ${token}`
+  });
+
+  const url = `${this.monkeysApiUrl}/${request.monkeyId}`;
+
+  return this.http.patch(url, request, {headers: headers , responseType:'text'});
+}
 
   getMonkeysBySpecies(species: string): Observable<MonkeyReportResponse[]> {
     const url = `${this.reportsApiUrl}/monkeys-per-species?species=${species}`;
@@ -31,7 +38,7 @@ export class MonkeyService {
       .set('dateFrom', request.dateFrom.toISOString())
       .set('dateTo', request.dateTo.toISOString());
 
-    return this.http.get(this.reportsApiUrl + '/arrivals-per-species', {params});
+    return this.http.get(this.reportsApiUrl + '/arrivals-per-date', {params});
   }
 
   private monkeysApiUrl = 'https://localhost:7008/api/monkeys'; // Your API endpoint
@@ -40,12 +47,23 @@ export class MonkeyService {
 
   constructor(private http: HttpClient) {}
 
-  departMonkeyFromShelter(monkeyId: number): Observable<any> {
-    return this.http.delete(`${this.monkeysApiUrl}/${monkeyId}`, {responseType: 'text'});
-  }
+departMonkeyFromShelter(monkeyId: number): Observable<any> {
+  const token = localStorage.getItem('token');
+  const headers = new HttpHeaders({
+    Authorization: `Bearer ${token}`
+  });
 
+  return this.http.delete(`${this.monkeysApiUrl}/${monkeyId}`, {
+    headers: headers,
+    responseType: 'text' as const
+  });
+}
 admitMonkeyToShelter(request: MonkeyEntryRequest): Observable<MonkeyReportResponse | string> {
-  return this.http.post<MonkeyReportResponse | string>(this.monkeysApiUrl, request).pipe(
+  const token = localStorage.getItem('token');
+    const headers = new HttpHeaders({
+    Authorization: `Bearer ${token}`
+  });
+    return this.http.post<MonkeyReportResponse | string>(this.monkeysApiUrl, request, { headers }).pipe(
     catchError((error) => {
       return of(this.handleError(error)); 
     })

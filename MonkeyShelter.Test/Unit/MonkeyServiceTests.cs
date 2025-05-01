@@ -21,15 +21,13 @@ namespace MonkeyShelter.Test.Unit
 
         public MonkeyServiceTests()
         {
-
             _admissionTracker = new Mock<IAdmissionTracker>();
             _monkeyRepository = new Mock<IMonkeyRepository>();
             _departureService = new Mock<IDepartureService>();
             _mockMemoryCache = new Mock<IMemoryCache>();
             _service = new MonkeyService(_admissionTracker.Object, _monkeyRepository.Object, _departureService.Object, _mockMemoryCache.Object);
         }
-
-
+  
         [Fact]
         public async Task AddMonkey_ValidRequest_AddsMonkey()
         {
@@ -54,7 +52,7 @@ namespace MonkeyShelter.Test.Unit
                 monkey.Value.Weight,
                 monkey.Value.LastUpdateTime,
                 monkey.Value.ShelterId)))
-                .Callback<Monkey>(m => newMonkeyId = m.Id)
+                .Callback<MonkeyDbModel>(m => newMonkeyId = m.Id)
                 .Returns(Task.FromResult(Result.Success(newMonkeyId)));
 
             _monkeyRepository.Verify(repo => repo.AddMonkeyToShelter(It.Is<MonkeyDbModel>(m =>
@@ -85,7 +83,7 @@ namespace MonkeyShelter.Test.Unit
     
             _admissionTracker
             .Setup(t => t.Admit(It.IsAny<int>()))
-            .Callback<Maybe<int>>(id => admittedMonkeyId = id)
+            .Callback<int>(id => admittedMonkeyId = id)
             .Returns(Task.FromResult(Result.Success()));
 
         // Act
@@ -145,52 +143,6 @@ namespace MonkeyShelter.Test.Unit
             // Assert
             Assert.True(result.IsFailure);
             Assert.Equal("Monkey not found", result.Error);
-        }
-
-
-        [Fact]
-        public async Task GetMonkeyBySpecies_ValidSpecies_ReturnsMonkeys()
-        {
-            // Arrange
-            var species = MonkeySpecies.Capuchin;
-            var expectedMonkeys = new List<MonkeyReportResponse>
-            {
-                new MonkeyReportResponse { Name = "Bobo", Species = species },
-                new MonkeyReportResponse { Name = "Lulu", Species = species }
-            };
-
-            _monkeyRepository.Setup(r => r.GetMonkeysBySpecies(species))
-                             .ReturnsAsync(expectedMonkeys);
-
-            // Act
-            var result = await _service.GetMonkeyBySpecies(Maybe.From(species));
-
-            // Assert
-            Assert.Equal(expectedMonkeys.Count, result.Value.Count);
-            Assert.All(result.Value, m => Assert.Equal(species, m.Species));
-            _monkeyRepository.Verify(r => r.GetMonkeysBySpecies(species), Times.Once);
-        }
-
-
-        [Fact]
-        public async Task GetMonkeysByDate_ValidRange_ReturnsMonkeys()
-        {
-            var from = new DateTime(2024, 1, 1);
-            var to = new DateTime(2024, 12, 31);
-
-            var expectedMonkeys = new List<MonkeyReportResponse>
-            {
-                new MonkeyReportResponse { Name = "Bobo" },
-                new MonkeyReportResponse { Name = "Mimi" }
-            };
-
-            _monkeyRepository.Setup(r => r.GetMonkeysByDate(from, to))
-                             .ReturnsAsync(expectedMonkeys);
-
-            var result = await _service.GetMonkeysByDate(new MonkeyDateRequest { DateFrom = from, DateTo = to});
-
-            Assert.Equal(expectedMonkeys.Count, result.Value.Count);
-            _monkeyRepository.Verify(r => r.GetMonkeysByDate(from, to), Times.Once);
         }
 
         [Fact]

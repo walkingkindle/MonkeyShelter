@@ -5,6 +5,7 @@ import { MonkeyReportResponse } from '../models/MonkeyReportResponse';
 import { CommonModule } from '@angular/common';
 import { MonkeyTableComponent } from '../monkey-report-table/monkey-report-table.component';
 import { MonkeySpecies } from '../enums/species';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-get-monkey-by-species',
@@ -17,31 +18,42 @@ export class GetMonkeyBySpeciesComponent {
   monkeyData: MonkeyReportResponse[] = [];
   getMonkeysBySpeciesForm: FormGroup;
 
-  // Create an array of the enum values
   monkeySpecies = Object.values(MonkeySpecies);
 
   constructor(private fb: FormBuilder, private monkeyService: MonkeyService) {
     this.getMonkeysBySpeciesForm = this.fb.group({
-      species: [''], // Default value for species
+      species: [''],
     });
   }
 
-  onSubmit() {
-    if (this.getMonkeysBySpeciesForm.valid) {
-      const species = this.getMonkeysBySpeciesForm.value.species; // Get the selected species
-      console.log('Selected Species:', species); // Log the selected species
+ onSubmit() {
+  if (this.getMonkeysBySpeciesForm.valid) {
+    const species = this.getMonkeysBySpeciesForm.value.species; 
+    console.log('Selected Species:', species);
 
-      // Pass the selected species as an argument to the service method
-      this.monkeyService.getMonkeysBySpecies(species).subscribe({
-        next: (response) => {
-          console.log('API Response:', response);
-          this.monkeyData = response;
-        },
-        error: (err) => {
-          console.error('Error:', err);
-        },
-      });
-    }
+    this.monkeyService.getMonkeysBySpecies(species).subscribe({
+      next: (response) => {
+        console.log('API Response:', response);
+        this.monkeyData = response;
+
+        if (this.monkeyData.length === 0) {
+          Swal.fire({
+            icon: 'info',
+            title: 'No Monkeys Found',
+            text: `No monkeys found for the selected species: ${species}.`,
+          });
+        }
+      },
+      error: (err) => {
+        console.error('Error:', err);
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'An error occurred while fetching the data. Please try again later.',
+        });
+      },
+    });
   }
+}
 }
 

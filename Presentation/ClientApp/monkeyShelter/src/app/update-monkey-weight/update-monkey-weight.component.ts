@@ -40,34 +40,33 @@ onSubmit(): void {
           text: 'Monkey weight has been successfully updated!',
         });
       },
-    error: (err) => {
-  console.error('Full error response:', err);
+      error: (err) => {
+        console.error('Full error response:', err);
 
-  let errorMessage = 'An unexpected error occurred.';
+        let errorMessage = 'An unexpected error occurred.';
 
-  if (err.error) {
-    if (typeof err.error === 'string') {
-      errorMessage = err.error;
+        if (err.status === 403) {
+          errorMessage = 'You do not have permission to update this monkey\'s weight.';
+        } else if (err.error) {
+          if (typeof err.error === 'string') {
+            errorMessage = err.error;
+          } else if (err.error.message) {
+            errorMessage = err.error.message;
+          } else {
+            try {
+              errorMessage = JSON.stringify(err.error);
+            } catch {
+              errorMessage = 'Error occurred but could not parse details.';
+            }
+          }
+        }
 
-    } else if (err.error.message) {
-      errorMessage = err.error.message;
-
-    } else {
-      try {
-        errorMessage = JSON.stringify(err.error);
-      } catch {
-        errorMessage = 'Error occurred but could not parse details.';
+        Swal.fire({
+          icon: 'error',
+          title: 'Update Failed',
+          text: errorMessage,
+        });
       }
-    }
+    });
   }
-
-  Swal.fire({
-    icon: 'error',
-    title: 'Creation Failed',
-    text: errorMessage,
-  });
-}
-})
-}
-}
-}
+}}

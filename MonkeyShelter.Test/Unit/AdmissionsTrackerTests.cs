@@ -9,13 +9,13 @@ namespace MonkeyShelter.Test.Unit
 {
     public class AdmissionsTrackerTests
     {
-        private readonly Mock<AdmissionsRepository> _admissionsRepository;
+        private readonly Mock<IAdmissionsRepository> _admissionsRepository;
 
         private readonly IAdmissionTracker _tracker;
 
         public AdmissionsTrackerTests()
         {
-            _admissionsRepository = new Mock<AdmissionsRepository>();
+            _admissionsRepository = new Mock<IAdmissionsRepository>();
             _tracker = new AdmissionsTracker(_admissionsRepository.Object);
         }
 

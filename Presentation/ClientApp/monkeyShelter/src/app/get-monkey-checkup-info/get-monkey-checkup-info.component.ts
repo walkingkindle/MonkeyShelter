@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { MonkeyTableComponent } from '../monkey-report-table/monkey-report-table.component';
 import { MonkeyCheckupResponse } from '../models/MonkeyCheckupResponse';
 import { FormsModule } from '@angular/forms';
+import { MonkeyReportResponse } from '../models/MonkeyReportResponse';
 
 @Component({
   selector: 'app-get-monkey-checkup-info',
@@ -14,8 +15,7 @@ import { FormsModule } from '@angular/forms';
 
 
 export class GetMonkeyCheckupInfoComponent {
-  lessThan30: MonkeyCheckupResponse[] = [];
-  moreThan30: MonkeyCheckupResponse[] = [];
+  monkeys: MonkeyReportResponse[] = [];
 
 
   constructor(private monkeyService:MonkeyService){}
@@ -23,8 +23,7 @@ export class GetMonkeyCheckupInfoComponent {
   onSubmit(): void {
     this.monkeyService.getMonkeysCheckup().subscribe({
       next: (response) => {
-        this.lessThan30 = response.scheduledInTheNext30;
-        this.moreThan30 = response.upcomingVetChecks;
+        this.monkeys = [response];
       },
       error: (err) => {
         console.error('Error:', err);

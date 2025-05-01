@@ -30,7 +30,7 @@ export class MonkeyFormComponent {
     successMessage: string | null = null;
     errorMessage: string | null = null;
 
-onSubmit(): void {
+    onSubmit(): void {
   this.successMessage = null;
   this.errorMessage = null;
 
@@ -42,51 +42,27 @@ onSubmit(): void {
       weight: formValue.weight,
     };
 
-    this.monkeyService.admitMonkeyToShelter(request).subscribe({
-      next: (response) => {
-        console.log('Monkey added:', response);
-        if (this.isMonkeyReportResponse(response)) {
-          this.monkeyData = [response]; // Wrap the response in an array
-          Swal.fire({
-            icon: 'success',
-            title: 'Monkey Created',
-            text: 'Monkey entry has been successfully submitted!',
-          });
-
-        Swal.fire({
-          icon: 'success',
-          title: 'Monkey Created',
-          text: 'Monkey entry has been successfully submitted!',
-        });
-
-        this.monkeyForm.reset();
-      }
-      },
-      error: (err:any) => {
-        console.error('Full error response:', err);
-
-        let errorMessage = 'An unexpected error occurred.';
-
-        if (err.error) {
-          if (typeof err.error === 'string') {
-            errorMessage = err.error;
-          } else if (err.error.message) {
-            errorMessage = err.error.message;
-          } else {
-            try {
-              errorMessage = JSON.stringify(err.error);
-            } catch {
-              errorMessage = 'Error occurred but could not parse details.';
-            }
-          }
-        }
-
+    this.monkeyService.admitMonkeyToShelter(request).subscribe((response) => {
+      if (typeof response === 'string') {
+        // Handle error messages (e.g. from 401, 403, 400)
         Swal.fire({
           icon: 'error',
-          title: 'Creation Failed',
-          text: errorMessage,
+          title: response === 'You are not authorized to perform this action.'
+            ? 'Unauthenticated'
+            : 'Creation Failed',
+          text: response,
         });
+        return;
       }
+
+      // Success
+      this.monkeyData = [response];
+      Swal.fire({
+        icon: 'success',
+        title: 'Monkey Created',
+        text: 'Monkey entry has been successfully submitted!',
+      });
+      this.monkeyForm.reset();
     });
   } else {
     this.errorMessage = 'Form is invalid. Please check the inputs.';

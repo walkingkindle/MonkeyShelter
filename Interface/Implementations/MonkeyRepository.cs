@@ -60,7 +60,8 @@ namespace Infrastructure.Implementations
                     Name = o.Monkey.Name,
                     Weight = o.Monkey.Weight,
                     Species = o.Monkey.Species,
-                    Id = o.Monkey.Id
+                    Id = o.Monkey.Id,
+                    CheckupTime = o.MonkeyCheckupTime,
                 })
                 .ToListAsync();
         }
@@ -68,7 +69,7 @@ namespace Infrastructure.Implementations
         public async Task<List<MonkeyReportResponse>> GetMonkeysBySpecies(MonkeySpecies species)
         {
             return await _monkeyShelterDbContext.Monkeys.Where(p => p.Species == species)
-                .Select(p => new MonkeyReportResponse { Id = p.Id, Name = p.Name, Species = p.Species, LastEditDate = p.LastUpdateTime })
+                .Select(p => new MonkeyReportResponse { Id = p.Id, Name = p.Name, Species = p.Species})
                 .ToListAsync();
         }
 

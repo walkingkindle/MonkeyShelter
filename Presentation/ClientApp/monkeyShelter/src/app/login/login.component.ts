@@ -14,29 +14,25 @@ export class LoginComponent {
     getMonkeysBySpeciesForm: FormGroup;
 
     constructor(private authService: AuthService, private router: Router, fb: FormBuilder) {
-        // Initialize the form group correctly
         this.getMonkeysBySpeciesForm = fb.group({
-            username: ['', Validators.required] // Corrected here
+            username: ['', Validators.required]
         });
     }
 
     onLogin(): void {
-        const username = this.getMonkeysBySpeciesForm.get('username')?.value; // Get the username from the form
+        const username = this.getMonkeysBySpeciesForm.get('username')?.value;
 
         if (username) {
             this.authService.login(username).subscribe({
                 next: (response: any) => {
-                    // Store the JWT token
                     localStorage.setItem('token', response.token);
                     
-                    // Show success message using SweetAlert
                     Swal.fire({
                         icon: 'success',
                         title: 'Login Successful',
                         text: 'You have successfully logged in!',
                     });
 
-                    // Redirect to a protected page
                     this.router.navigate(['/add-monkey']);
                 },
                 error: (err) => {
@@ -58,7 +54,6 @@ export class LoginComponent {
                         }
                     }
 
-                    // Show error message using SweetAlert
                     Swal.fire({
                         icon: 'error',
                         title: 'Login Failed',
@@ -67,7 +62,6 @@ export class LoginComponent {
                 }
             });
         } else {
-            // Handle case when username is not provided
             console.error('Username is required');
             Swal.fire({
                 icon: 'error',

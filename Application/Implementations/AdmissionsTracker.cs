@@ -36,6 +36,13 @@ namespace Application.Implementations
                     return Result.Failure("Shelter is currently full");
                 }
 
+                var admittanceResult = Admission.Create(monkeyId, DateTime.Today);
+
+                if (admittanceResult.IsFailure)
+                {
+                    return Result.Failure(admittanceResult.Error);
+                }
+
                 await _admissionsRepository.AddAdmittance(new AdmissionDbModel(monkeyId, DateTime.Today));
                 return Result.Success();
             }

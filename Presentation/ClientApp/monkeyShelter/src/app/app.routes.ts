@@ -8,6 +8,7 @@ import { Component } from '@angular/core';
 import { GetMonkeyBySpeciesComponent } from './get-monkey-by-species/get-monkey-by-species.component';
 import { UpdateMonkeyWeightComponent } from './update-monkey-weight/update-monkey-weight.component';
 import { GetMonkeyCheckupInfoComponent } from './get-monkey-checkup-info/get-monkey-checkup-info.component';
+import { LoginComponent } from './login/login.component';
 
 export const routes: Routes = [
   { path: 'add-monkey', component: MonkeyFormComponent },
@@ -16,6 +17,7 @@ export const routes: Routes = [
   {path: 'monkeys-species', component: GetMonkeyBySpeciesComponent},
   {path:'monkey-checkup-info', component:GetMonkeyCheckupInfoComponent},
   {path:'monkey-weight', component:UpdateMonkeyWeightComponent},
+  {path:'login', component:LoginComponent},
   { path: '', redirectTo: 'add-monkey', pathMatch: 'full' }
 ];
 

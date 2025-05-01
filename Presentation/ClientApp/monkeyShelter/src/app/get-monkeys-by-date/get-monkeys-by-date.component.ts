@@ -4,6 +4,7 @@ import { MonkeyService } from '../services/monkey.service';
 import { MonkeyReportResponse } from '../models/MonkeyReportResponse';
 import { MonkeyTableComponent } from '../monkey-report-table/monkey-report-table.component';
 import { CommonModule } from '@angular/common';
+import Swal from 'sweetalert2';
 
 @Component({
   selector: 'app-get-monkeys-by-date',
@@ -38,12 +39,27 @@ onSubmit(): void {
   this.monkeyService.getMonkeysByDate(request).subscribe({
     next: (response) => {
       this.monkeyData = response;
+      
+      if (this.monkeyData.length === 0) {
+        Swal.fire({
+          icon: 'info',
+          title: 'No Monkeys Found',
+          text: 'No monkeys were found with the specified date range.',
+        });
+      }
     },
     error: (err) => {
       console.error('Error:', err);
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'An error occurred while fetching the data. Please try again later.',
+      });
     }
   });
 }
+
+
 
 }
 

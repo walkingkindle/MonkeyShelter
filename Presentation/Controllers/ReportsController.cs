@@ -8,12 +8,18 @@ using Microsoft.AspNetCore.Mvc.Core;
 
 namespace Presentation.Controllers
 {
+    /// <summary>
+    /// Provides endpoints for generating monkey-related reports.
+    /// </summary>
     [ApiController]
     [Route("/api/reports")]
     public class ReportsController : ControllerBase
     {
         private readonly IMonkeyService _monkeyService;
 
+        /// <summary>
+        /// Provides endpoints for generating monkey-related reports.
+        /// </summary>
         public ReportsController(IMonkeyService monkeyService)
         {
             _monkeyService = monkeyService;

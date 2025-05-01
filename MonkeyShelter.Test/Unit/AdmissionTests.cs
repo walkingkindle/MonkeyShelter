@@ -22,9 +22,9 @@ namespace MonkeyShelter.Test.Unit
         }
 
         [Fact]
-        public void Create_Admission_Should_Fail_Invalid_Data_Date()
+        public void Create_Admission_Should_Suceed_Datetime_NotToday()
         {
-            Assert.True(Admission.Create(2,DateTime.Today.AddDays(-5)).IsFailure);
+            Assert.True(Admission.Create(2,DateTime.Today.AddDays(-5)).IsSuccess);
         }
     }
 }

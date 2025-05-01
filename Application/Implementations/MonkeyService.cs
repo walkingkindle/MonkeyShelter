@@ -74,7 +74,6 @@ namespace Application.Implementations
                 Name = createResult.Value.Name,
                 Weight = createResult.Value.Weight,
                 Species = createResult.Value.Species,
-                LastEditDate = null
             });
 
         }
@@ -129,16 +128,16 @@ namespace Application.Implementations
                 return Result.Failure<List<MonkeyReportResponse>>(validationResult.Error);
             }
 
-            var cacheKey = $"MonkeySpecies_{species.Value}";
+            var validSpecies = validationResult.Value;
+            var cacheKey = $"MonkeySpecies_{validSpecies}";
+
             if (_memoryCache.TryGetValue(cacheKey, out List<MonkeyReportResponse>? cachedResult))
             {
-                 return Result.Success(cachedResult ?? new List<MonkeyReportResponse>());
-
+                return Result.Success(cachedResult ?? new List<MonkeyReportResponse>());
             }
+            var result = await _monkeyRepository.GetMonkeysBySpecies(validSpecies);
 
-            var result = await _monkeyRepository.GetMonkeysBySpecies(species.Value);
-
-            if (result.Any())
+            if (result != null && result.Any())
             {
                 _memoryCache.Set(cacheKey, result, TimeSpan.FromMinutes(10));
             }
